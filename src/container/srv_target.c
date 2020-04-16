@@ -1518,86 +1518,13 @@ cont_close_hdl(uuid_t cont_hdl_uuid)
 	return 0;
 }
 
-static int
-cont_close_all_cb(d_list_t *rlink, void *arg)
-{
-	uuid_t *cont_uuid = arg;
-	struct ds_cont_hdl *hdl = cont_hdl_obj(rlink);
-	int rc;
-
-	if (hdl->sch_cont == NULL)
-		return DER_SUCCESS;
-
-	if (uuid_compare(*cont_uuid, hdl->sch_cont->sc_uuid) == 0) {
-		rc = cont_close_hdl(hdl->sch_uuid);
-		if (rc != 0) {
-			D_ERROR("cont_close_hdl failed: rc="DF_RC, DP_RC(rc));
-			return rc;
-		}
-	}
-
-	return DER_SUCCESS;
-}
-
-/* Called via dss_collective() to close all container handles for this thread */
-static int
-cont_close_all(void *vin)
-{
-	struct dsm_tls *tls = dsm_tls_get();
-	uuid_t *cont_uuid = vin;
-	int rc;
-
-	rc = d_hash_table_traverse(&tls->dt_cont_hdl_hash, cont_close_all_cb,
-				   cont_uuid);
-	if (rc != 0) {
-		D_ERROR("d_hash_table_traverse failed: rc="DF_RC, DP_RC(rc));
-		return rc;
-	}
-
-	return DER_SUCCESS;
-}
-
-/* Called via dss_collective() to close the containers belong to this thread. */
-static int
-cont_close_one(void *vin)
-{
-	struct cont_tgt_close_in	*in = vin;
-	struct cont_tgt_close_rec	*recs = in->tci_recs.ca_arrays;
-	int				i;
-	int				rc = 0;
-
-	for (i = 0; i < in->tci_recs.ca_count; i++) {
-		int rc_tmp;
-
-		rc_tmp = cont_close_hdl(recs[i].tcr_hdl);
-		if (rc_tmp != 0 && rc == 0)
-			rc = rc_tmp;
-	}
-
-	return rc;
-}
-
-int
-ds_cont_tgt_force_close(uuid_t cont_uuid)
-{
-	int rc;
-
-	D_DEBUG(DF_DSMS, DF_CONT": Force closing all handles for container "
-		DF_UUID"\n", DP_CONT(NULL, NULL), cont_uuid);
-
-	rc = dss_thread_collective(cont_close_all, &cont_uuid, 0, DSS_ULT_IO);
-	if (rc != 0)
-		D_ERROR("dss_thread_collective failed: rc="DF_RC, DP_RC(rc));
-	return rc;
-}
-
 struct coll_close_arg {
 	uuid_t	uuid;
 };
 
 /* Called via dss_collective() to close the containers belong to this thread. */
 static int
-cont_close_one_hdl(void *vin)
+cont_close_one(void *vin)
 {
 	struct coll_close_arg *arg = vin;
 
@@ -1610,56 +1537,7 @@ ds_cont_tgt_close(uuid_t hdl_uuid)
 	struct coll_close_arg arg;
 
 	uuid_copy(arg.uuid, hdl_uuid);
-	return dss_thread_collective(cont_close_one_hdl, &arg, 0, DSS_ULT_IO);
-}
-
-void
-ds_cont_tgt_close_handler(crt_rpc_t *rpc)
-{
-	struct cont_tgt_close_in       *in = crt_req_get(rpc);
-	struct cont_tgt_close_out      *out = crt_reply_get(rpc);
-	struct cont_tgt_close_rec      *recs = in->tci_recs.ca_arrays;
-	struct ds_pool			*pool;
-	int				i;
-	int				rc;
-
-	if (in->tci_recs.ca_count == 0)
-		D_GOTO(out, rc = 0);
-
-	if (in->tci_recs.ca_arrays == NULL)
-		D_GOTO(out, rc = -DER_INVAL);
-
-	D_DEBUG(DF_DSMS, DF_CONT": handling rpc %p: recs[0].hdl="DF_UUID
-		"recs[0].hce="DF_U64" nres="DF_U64"\n", DP_CONT(NULL, NULL),
-		rpc, DP_UUID(recs[0].tcr_hdl), recs[0].tcr_hce,
-		in->tci_recs.ca_count);
-
-	pool = ds_pool_lookup(in->tci_pool_uuid);
-	if (pool) {
-		for (i = 0; i < in->tci_recs.ca_count; i++)
-			cont_iv_capability_invalidate(pool->sp_iv_ns,
-						      recs[i].tcr_hdl);
-		ds_pool_put(pool);
-	}
-
-	rc = dss_thread_collective(cont_close_one, in, 0, DSS_ULT_IO);
-	D_ASSERTF(rc == 0, ""DF_RC"\n", DP_RC(rc));
-
-out:
-	out->tco_rc = (rc == 0 ? 0 : 1);
-	D_DEBUG(DF_DSMS, DF_CONT": replying rpc %p: %d "DF_RC"\n",
-		DP_CONT(NULL, NULL), rpc, out->tco_rc, DP_RC(rc));
-	crt_reply_send(rpc);
-}
-
-int
-ds_cont_tgt_close_aggregator(crt_rpc_t *source, crt_rpc_t *result, void *priv)
-{
-	struct cont_tgt_close_out    *out_source = crt_reply_get(source);
-	struct cont_tgt_close_out    *out_result = crt_reply_get(result);
-
-	out_result->tco_rc += out_source->tco_rc;
-	return 0;
+	return dss_thread_collective(cont_close_one, &arg, 0, DSS_ULT_IO);
 }
 
 struct xstream_cont_query {
