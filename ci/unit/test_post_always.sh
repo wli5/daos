@@ -6,7 +6,7 @@
 set -uex
 
 if [ -e ./.build_vars.sh ]; then
-  # shellcheck disable=SC1091
+  # shellcheck source=../../.build_vars.sh
   source ./.build_vars.sh
 else
   echo 'The .build_vars.sh file is missing!'
