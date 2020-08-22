@@ -17,6 +17,7 @@ server_config:
     scm_class: dcpm
     scm_list: ["/dev/pmem0"]
 pool:
+  control_method: dmg
   createmode:
     mode_RW:
       mode: 146
