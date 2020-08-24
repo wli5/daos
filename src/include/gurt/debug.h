@@ -302,6 +302,12 @@ do {									\
 #define DF_U64		"%" PRIu64
 #define DF_X64		"%" PRIx64
 
+#define D_DEPRECATED(replacement)						\
+	if (strnlen(replacement, 64) == 0)					\
+		D_ERROR("is deprecated\n");					\
+	else									\
+		D_ERROR("is deprecated (use %s instead)\n", replacement);
+
 /** @}
  */
 #endif /* __GURT_DEBUG_H__ */
