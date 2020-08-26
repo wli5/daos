@@ -1,0 +1,90 @@
+#!/usr/bin/make -f
+# See debhelper(7) (uncomment to enable)
+# output every command that modifies files on the build system.
+export DH_VERBOSE = 1
+
+
+# see FEATURE AREAS in dpkg-buildflags(1)
+#export DEB_BUILD_MAINT_OPTIONS = hardening=+all
+
+# see ENVIRONMENT in dpkg-buildflags(1)
+# package maintainers to append CFLAGS
+#export DEB_CFLAGS_MAINT_APPEND  = -Wall -pedantic
+# package maintainers to append LDFLAGS
+#export DEB_LDFLAGS_MAINT_APPEND = -Wl,--as-needed
+
+name := daos
+prefix := /usr
+exec_prefix := $(prefix)
+buildroot := debian/tmp
+daoshome := $(exec_prefix)/lib/$(DEB_BUILD_MULTIARCH)/$(name)
+
+SCONS = scons
+DEB_SCONS_OPTIONS := --config=force --no-rpath USE_INSTALLED=all \
+        CONF_DIR=/etc/ PREFIX=$(buildroot)$(prefix)
+
+export GOCACHE := $(CURDIR)/.gocache
+export GOCACHE := off
+export HOME := $(CURDIR)/.home
+
+%:
+	dh $@
+
+override_dh_auto_build:
+	#if [ ! -e src/$(name)/_structures_from_macros_.h_orig ] ;then \
+	#  cp src/$(name)/_structures_from_macros_.h \
+	#    src/$(name)/_structures_from_macros_.h_orig ;fi
+	mkdir -p $(HOME)
+	mkdir -p $(GOCACHE)
+	export GOCACHE=off; $(SCONS) $(DEB_SCONS_OPTIONS) || { set -x; cat config.log; exit 1; }
+
+override_dh_auto_clean:
+	$(SCONS) --clean
+	rm -rf build install
+	find . -name '*.pyc' -delete
+	rm -rf _build.external-Linux
+	rm -rf .sconf-temp-Linux
+	rm -f .sconsign-Linux.dblite
+	rm -f .build_vars-Linux.json .build_vars-Linux.sh
+	rm -f $(name)-Linux.conf
+	rm -f config-Linux.log
+	#if [ -e src/$(name)/_structures_from_macros_.h_orig ] ;then \
+	#  mv src/$(name)/_structures_from_macros_.h_orig \
+	#    src/$(name)/_structures_from_macros_.h ;fi
+	dh_auto_clean
+
+# cp openmpi/include to work around bug until ompi dependency removed
+# Need to save/restore src/cart/_structures_from_macros_.h
+override_dh_auto_install:
+	#if [ ! -e src/$(name)/_structures_from_macros_.h_orig ] ;then \
+	#  cp src/$(name)/_structures_from_macros_.h \
+	#    src/$(name)/_structures_from_macros_.h_orig ;fi
+	mkdir -p $(buildroot)$(prefix)/include
+	mkdir -p $(HOME)
+	mkdir -p $(GOCACHE)
+	export GOCACHE=off; $(SCONS) $(DEB_SCONS_OPTIONS) install
+	mkdir -p ${buildroot}/usr/lib/systemd/system
+	install -m 644 utils/systemd/daos_server.service ${buildroot}/usr/lib/systemd/system
+	install -m 644 utils/systemd/daos_agent.service ${buildroot}/usr/lib/systemd/system
+	find debian/tmp -type f | xargs ls -ld
+	#sed -i -r -e s%.+$(buildroot)$(prefix)%$(prefix)%g \
+	#  $(buildroot)$(prefix)/TESTING/.build_vars.*
+	#for f in cart_ctl self_test ; do \
+	#  mv $(buildroot)$(prefix)/bin/$$f \
+	#    $(buildroot)$(prefix)/bin/$(DEB_BUILD_MULTIARCH)-$$f ; \
+	#  ln -s $(DEB_BUILD_MULTIARCH)-$$f $(buildroot)$(prefix)/bin/$$f ;done
+	#mkdir -p $(buildroot)$(carthome)
+	#mkdir -p $(buildroot)$(prefix)/lib/$(DEB_BUILD_MULTIARCH)
+	#cp -al multi-node-test.sh utils $(buildroot)$(carthome)/
+	#mv $(buildroot)$(prefix)/TESTING $(buildroot)$(carthome)/
+	#ln $(buildroot)$(carthome)/TESTING/.build_vars.sh \
+	#  $(buildroot)$(carthome)/.build_vars-linux.sh
+	#mv $(buildroot)$(prefix)/lib/lib*.so* \
+	#  $(buildroot)$(prefix)/lib/$(DEB_BUILD_MULTIARCH)/
+	#rm -rf $(buildroot)$(carthome)/utils/docker
+	#chmod 0644 $(buildroot)$(carthome)/TESTING/*/*.yaml
+	#rm -rf build install
+	#find . -name '*.pyc' -delete
+
+override_dh_missing:
+	dh_missing --fail-missing

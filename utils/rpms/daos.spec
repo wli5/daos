@@ -125,7 +125,7 @@ Requires: mercury = %{mercury_version}
 Requires(post): /sbin/ldconfig
 Requires(postun): /sbin/ldconfig
 Requires: libfabric >= 1.8.0
-%systemd_requires
+%{?systemd_requires}
 
 %description server
 This is the package needed to run a DAOS server
@@ -143,7 +143,7 @@ Requires: libfuse3-3 >= 3.4.2
 # get it when fuse3 Requires: /etc/fuse.conf
 Requires: fuse < 3, fuse3-libs >= 3.4.2
 %endif
-%systemd_requires
+%{?systemd_requires}
 
 %description client
 This is the package needed to run a DAOS client
@@ -186,7 +186,7 @@ Summary: The DAOS development libraries and headers
 This is the package needed to build software with the DAOS library.
 
 %prep
-%setup -q
+%autosetup -q
 
 %build
 
