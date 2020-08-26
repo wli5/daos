@@ -186,7 +186,7 @@ Summary: The DAOS development libraries and headers
 This is the package needed to build software with the DAOS library.
 
 %prep
-%autosetup -q
+%autosetup
 
 %build
 
