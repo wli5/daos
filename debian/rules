@@ -62,7 +62,11 @@ override_dh_auto_install:
 	mkdir -p $(buildroot)$(prefix)/include
 	mkdir -p $(HOME)
 	mkdir -p $(GOCACHE)
-	export GOCACHE=off; $(SCONS) $(DEB_SCONS_OPTIONS) install
+	export GOCACHE=off; $(SCONS) --install-sandbox=${buildroot} \
+	                             $(DEB_SCONS_OPTIONS)           \
+	                             ${buildroot}${prefix}          \
+	                             ${buildroot}/etc/daos          \
+				     install
 	mkdir -p ${buildroot}/usr/lib/systemd/system
 	install -m 644 utils/systemd/daos_server.service ${buildroot}/usr/lib/systemd/system
 	install -m 644 utils/systemd/daos_agent.service ${buildroot}/usr/lib/systemd/system
@@ -86,5 +90,5 @@ override_dh_auto_install:
 	#rm -rf build install
 	#find . -name '*.pyc' -delete
 
-override_dh_missing:
-	dh_missing --fail-missing
+#override_dh_missing:
+#	dh_missing --fail-missing

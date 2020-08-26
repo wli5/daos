@@ -22,7 +22,7 @@ usr/lib64/python3/site-packages/pydaos/*.py
 usr/lib64/python3/site-packages/storage_estimator/*.py
 usr/lib64/python3/site-packages/pydaos/pydaos_shim_3.so
 usr/lib64/python3/site-packages/pydaos/raw/*.py
-usr/share/daos/daos/ioil-ld-opts
+usr/share/daos/ioil-ld-opts
 etc/daos_agent.yml
 etc/daos_control.yml
 usr/lib/systemd/system/daos_agent.service
