@@ -21,7 +21,7 @@ daoshome := $(exec_prefix)/lib/$(DEB_BUILD_MULTIARCH)/$(name)
 
 SCONS = scons
 DEB_SCONS_OPTIONS := --config=force --no-rpath USE_INSTALLED=all \
-        CONF_DIR=/etc/ PREFIX=$(buildroot)$(prefix)
+        CONF_DIR=/etc/daos PREFIX=$(buildroot)$(prefix)
 
 export GOCACHE := $(CURDIR)/.gocache
 export GOCACHE := off
