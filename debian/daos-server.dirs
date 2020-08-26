@@ -1,6 +1,6 @@
-etc
-etc/certs
-etc/certs/clients
+etc/daos
+etc/daos/certs
+etc/daos/certs/clients
 usr/bin
 usr/lib64/daos_srv
 usr/share/daos/control
