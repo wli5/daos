@@ -19,9 +19,9 @@ exec_prefix := $(prefix)
 buildroot := debian/tmp
 daoshome := $(exec_prefix)/lib/$(DEB_BUILD_MULTIARCH)/$(name)
 
-SCONS = scons
+SCONS = scons -j 8
 DEB_SCONS_OPTIONS := --config=force --no-rpath USE_INSTALLED=all \
-        CONF_DIR=/etc/daos PREFIX=$(buildroot)$(prefix)
+        CONF_DIR=/etc/daos PREFIX=$(prefix)
 
 export GOCACHE := $(CURDIR)/.gocache
 export GOCACHE := off
@@ -62,11 +62,13 @@ override_dh_auto_install:
 	mkdir -p $(buildroot)$(prefix)/include
 	mkdir -p $(HOME)
 	mkdir -p $(GOCACHE)
-	export GOCACHE=off; $(SCONS) --install-sandbox=${buildroot} \
-	                             $(DEB_SCONS_OPTIONS)           \
-	                             ${buildroot}${prefix}          \
-	                             ${buildroot}/etc/daos          \
-				     install
+	#export GOCACHE=off; $(SCONS) --install-sandbox=${buildroot} \
+	                             #$(DEB_SCONS_OPTIONS)           \
+	                             #${buildroot}${prefix}          \
+	                             #${buildroot}/etc/daos
+	#export GOCACHE=off; scons -j8 --config=force --no-rpath --install-sandbox=${buildroot} ${buildroot}/usr ${buildroot}/etc/daos USE_INSTALLED=all CONF_DIR=/etc/daos PREFIX=/usr
+	export GOCACHE=off; scons -j8 --config=force --no-rpath --install-sandbox=${buildroot} ${buildroot}/usr USE_INSTALLED=all CONF_DIR=/etc/daos PREFIX=/usr
+
 	mkdir -p ${buildroot}/usr/lib/systemd/system
 	install -m 644 utils/systemd/daos_server.service ${buildroot}/usr/lib/systemd/system
 	install -m 644 utils/systemd/daos_agent.service ${buildroot}/usr/lib/systemd/system
