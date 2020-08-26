@@ -67,7 +67,7 @@ override_dh_auto_install:
 	                             #${buildroot}${prefix}          \
 	                             #${buildroot}/etc/daos
 	#export GOCACHE=off; scons -j8 --config=force --no-rpath --install-sandbox=${buildroot} ${buildroot}/usr ${buildroot}/etc/daos USE_INSTALLED=all CONF_DIR=/etc/daos PREFIX=/usr
-	export GOCACHE=off; scons -j8 --config=force --no-rpath --install-sandbox=${buildroot} ${buildroot}/usr USE_INSTALLED=all CONF_DIR=/etc/daos PREFIX=/usr
+	export GOCACHE=off; scons -j8 --config=force --no-rpath --install-sandbox=${buildroot} ${buildroot}/usr USE_INSTALLED=all CONF_DIR=/etc/daos PREFIX=/usr install
 
 	mkdir -p ${buildroot}/usr/lib/systemd/system
 	install -m 644 utils/systemd/daos_server.service ${buildroot}/usr/lib/systemd/system
