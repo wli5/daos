@@ -81,7 +81,7 @@ def install_go_bin(denv, gosrc, libs, name, install_name):
     # Must be run from the top of the source dir in order to
     # pick up the vendored modules.
     denv.Command(build_bin, src + gurt_lib,
-                 'cd %s; echo $HOME $GOCACHE; %s env; %s build -mod vendor -v %s %s -o %s %s' %
+                 'cd %s; echo ----- env -----; env; echo ----- go env -----; %s env; %s build -mod vendor -v %s %s -o %s %s' %
                  (gosrc, GO_BIN, GO_BIN, go_ldflags(), get_build_tags(denv),
                   build_bin, install_src))
     # Use the intermediate build location in order to play nicely
