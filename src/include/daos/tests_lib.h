@@ -165,6 +165,13 @@ struct dts_context {
 	/** OUTPUT END */
 };
 
+typedef struct {
+       uuid_t			pool_uuid;
+       const char		*state;
+       int				rank;
+       const char		*host;
+}  device_list;
+
 /** Initialize an SGL with a variable number of IOVs and set the IOV buffers
  *  to the value of the strings passed. This will allocate memory for the iov
  *  structures as well as the iov buffers, so d_sgl_fini(sgl, true) must be
@@ -303,6 +310,6 @@ int dmg_pool_create(const char *dmg_config_file,
 int dmg_pool_destroy(const char *dmg_config_file,
 		     const uuid_t uuid, const char *grp, int force);
 
-int dmg_storage_device_list(const char *dmg_config_file);
+int dmg_storage_device_list(const char *dmg_config_file, device_list *devices);
 
 #endif /* __DAOS_TESTS_LIB_H__ */

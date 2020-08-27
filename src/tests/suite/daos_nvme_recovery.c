@@ -130,6 +130,7 @@ nvme_recov_2(void **state)
 	daos_obj_id_t		oid;
 	daos_pool_info_t	pinfo;
 	int					rc;
+	device_list         *devices = NULL;
 
 	/**
 	*Get the pool storage information
@@ -143,7 +144,7 @@ nvme_recov_2(void **state)
 	io_simple_internal(state, oid, IO_SIZE_NVME, DAOS_IOD_ARRAY,
 			   "io_simple_nvme_array dkey",
 			   "io_simple_nvme_array akey");
-	dmg_storage_device_list(dmg_config_file);
+	dmg_storage_device_list(dmg_config_file, devices);
 	/**
 	*Get the pool storage information
 	*/

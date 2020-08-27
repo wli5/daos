@@ -27,6 +27,7 @@
 #include <json-c/json.h>
 
 #include <daos/common.h>
+#include <daos/tests_lib.h>
 #include <daos.h>
 
 static void
@@ -572,16 +573,44 @@ out_json:
 	return rc;
 }
 
+static int
+parse_device_info(struct json_object *json_pool, device_list *device_info)
+{
+	struct json_object	*tmp;
+
+	if (!json_object_object_get_ex(json_pool, "uuid", &tmp)) {
+		D_ERROR("unable to extract uuid from JSON\n");
+	return -DER_INVAL;
+	}
+	printf("\n UUID=%s ", json_object_to_json_string(tmp));
+	//uuid_parse(json_object_get_string(tmp), device_info->pool_uuid);
+
+	if (!json_object_object_get_ex(json_pool, "state", &tmp)) {
+		D_ERROR("unable to extract state from JSON\n");
+	return -DER_INVAL;
+	}
+	//device_info->state = json_object_to_json_string(tmp);
+	printf("state=%s ", json_object_to_json_string(tmp));
+
+	if (!json_object_object_get_ex(json_pool, "rank", &tmp)) {
+		D_ERROR("unable to extract rank from JSON\n");
+	return -DER_INVAL;
+	}
+	printf("rank=%s \n", json_object_to_json_string(tmp));
+
+	return 0;
+}
+
 int
-dmg_storage_device_list(const char *dmg_config_file)
+dmg_storage_device_list(const char *dmg_config_file,
+	device_list *devices)
 {
 	struct json_object	*dmg_out = NULL;
-	struct json_object	*device_list = NULL;
+	struct json_object	*dmg_out1 = NULL;
 	struct json_object	*hosts_list = NULL;
 	struct json_object	*val2 = NULL;
 	struct json_object	*tmp = NULL;
 	struct json_object	*tmp1 = NULL;
-	struct json_object	*id = NULL;
 	int			i, rc = 0;
 	int device_length = 0;
 
@@ -593,12 +622,12 @@ dmg_storage_device_list(const char *dmg_config_file)
 	}
 
 	if (!json_object_object_get_ex(dmg_out, "host_storage_map",
-		&device_list)) {
+		&dmg_out1)) {
 		D_ERROR("unable to extract host_storage_map from JSON\n");
 		return -DER_INVAL;
 	}
 
-	json_object_object_foreach(device_list, key, val) {
+	json_object_object_foreach(dmg_out1, key, val) {
 		D_DEBUG(DB_TEST, "key:\"%s\",val=%s\n", key,
 			json_object_to_json_string(val));
 
@@ -619,22 +648,9 @@ dmg_storage_device_list(const char *dmg_config_file)
 				}
 				device_length = json_object_array_length(tmp);
 				for (i = 0; i < device_length; i++) {
-					id = json_object_array_get_idx(tmp, i);
-					if (!json_object_object_get_ex(id, "uuid", &tmp1)) {
-						D_ERROR("unable to extract uuid from JSON\n");
-						return -DER_INVAL;
-					}
-					printf("\n UUID=%s ", json_object_to_json_string(tmp1));
-					if (!json_object_object_get_ex(id, "state", &tmp1)) {
-						D_ERROR("unable to extract state from JSON\n");
-						return -DER_INVAL;
-					}
-					printf("state=%s ", json_object_to_json_string(tmp1));
-					if (!json_object_object_get_ex(id, "rank", &tmp1)) {
-						D_ERROR("unable to extract rank from JSON\n");
-						return -DER_INVAL;
-					}
-					printf("rank=%s \n", json_object_to_json_string(tmp1));
+					tmp1 = json_object_array_get_idx(tmp, i);
+					//devices[i].host = json_object_to_json_string(hosts_list);
+					parse_device_info(tmp1, &devices[i]);
 				}
 			}
 		}
