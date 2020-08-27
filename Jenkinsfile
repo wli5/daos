@@ -532,6 +532,47 @@ pipeline {
                         }
                     }
                 }
+                stage('Build DEB on Ubuntu 20.04') {
+                    when {
+                        beforeAgent true
+                        allOf {
+                            not { branch 'weekly-testing' }
+                            not { environment name: 'CHANGE_TARGET',
+                                              value: 'weekly-testing' }
+                            expression { ! skip_stage('build-ubuntu.20.04') }
+                        }
+                    }
+                    agent {
+                        dockerfile {
+                            filename 'Dockerfile.ubuntu2004'
+                            dir 'utils/rpms/packaging'
+                            label 'docker_runner'
+                            args '--privileged=true'
+                            additionalBuildArgs '$BUILDARGS'
+                            args  '--cap-add=SYS_ADMIN --privileged=true'
+                        }
+                    }
+                    steps {
+                        buildRpm unstable: true
+                    }
+                    post {
+                        success {
+                            buildRpmPost condition: 'success'
+                        }
+                        unstable {
+                            buildRpmPost condition: 'unstable'
+                        }
+                        failure {
+                            buildRpmPost condition: 'failure'
+                        }
+                        unsuccessful {
+                            buildRpmPost condition: 'unsuccessful'
+                        }
+                        cleanup {
+                            buildRpmPost condition: 'cleanup'
+                        }
+                    }
+                }
                 stage('Build on CentOS 7') {
                     when {
                         beforeAgent true
