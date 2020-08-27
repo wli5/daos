@@ -544,7 +544,7 @@ pipeline {
                     }
                     agent {
                         dockerfile {
-                            filename 'Dockerfile.ubuntu2004'
+                            filename 'Dockerfile.ubuntu.20.04'
                             dir 'utils/rpms/packaging'
                             label 'docker_runner'
                             args '--privileged=true'
