@@ -59,7 +59,7 @@ override_dh_auto_install:
 	$(SCONS) $(DEB_SCONS_OPTIONS)                     \
 	         --install-sandbox=$(CURDIR)/${buildroot} \
 	         $(CURDIR)/${buildroot}${prefix}          \
-	         $(CURDIR)/${buildroot}$(sysconfdir) 
+	         $(CURDIR)/${buildroot}$(sysconfdir)
 	mkdir -p ${buildroot}$(sysconfdir)/ld.so.conf.d/
 	echo "$(prefix)/lib64/daos_srv" > ${buildroot}$(sysconfdir)/ld.so.conf.d/daos.conf
 	mkdir -p ${buildroot}$(prefix)/lib/systemd/system
