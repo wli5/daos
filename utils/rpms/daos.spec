@@ -254,7 +254,7 @@ getent passwd daos_server >/dev/null || useradd -M daos_server
 %{_libdir}/libvos.so
 %{_libdir}/libcart*
 %{_libdir}/libgurt*
-%{_prefix}/etc/memcheck-cart.supp
+%{_prefix}/%{_sysconfdir}/memcheck-cart.supp
 %dir %{_prefix}%{_sysconfdir}
 %{_prefix}%{_sysconfdir}/vos_size_input.yaml
 %dir %{_sysconfdir}/bash_completion.d
@@ -384,7 +384,6 @@ getent passwd daos_server >/dev/null || useradd -M daos_server
 %{_libdir}/*.a
 
 %changelog
-
 * Thu Aug 27 2020 Brian J. Murrell <brian.murrell@intel.com> - 1.1.0-33
 - Use %%autosetup
 - Only use systemd_requires if it exists

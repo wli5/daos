@@ -14,7 +14,7 @@ usr/lib64/libcart*
 usr/lib64/libgurt*
 usr/lib64/libdaos_common.so
 usr/etc/memcheck-cart.supp
-usr%{_sysconfdir}/vos_size_input.yaml
+usr/etc/vos_size_input.yaml
 # TODO: this should move from daos_srv to daos
 usr/lib64/daos_srv/libplacement.so
 # Certificate generation files
