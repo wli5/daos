@@ -2,10 +2,8 @@
 
 set -uex
 
-echo "$DISTRO_BASE_LOCAL_REPOS"
+# shellcheck disable=SC2153
 IFS=\| read -r -a distro_base_local_repos <<< "$DISTRO_BASE_LOCAL_REPOS"
-echo ${distro_base_local_repos[@]}
-echo ${distro_base_local_repos[0]}
 #sudo pbuilder create                        \
 #    --extrapackages "gnupg ca-certificates" \
 #    --othermirror                           \
