@@ -82,7 +82,7 @@ def install_go_bin(denv, gosrc, libs, name, install_name):
     # pick up the vendored modules.
     # Propagate useful GO environment variables from the caller
     print("GOCACHE = %s" % os.environ['GOCACHE'])
-    denv.Replace(GOCACHE = os.environ['GOCACHE'])
+    denv['ENV']['GOCACHE'] = os.environ['GOCACHE']
     denv.Command(build_bin, src + gurt_lib,
                  'cd %s; echo ----- env -----; env; echo ----- go env -----; %s env; %s build -mod vendor -v %s %s -o %s %s' %
                  (gosrc, GO_BIN, GO_BIN, go_ldflags(), get_build_tags(denv),
