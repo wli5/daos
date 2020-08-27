@@ -134,8 +134,11 @@ daos_dmg_json_pipe(const char *dmg_cmd, const char *dmg_config_file,
 	/* allow env to set only if not supplied */
 	if (dmg_config_file == NULL)
 		cfg_file = getenv("DMG_CONFIG_FILE");
-	else
+	else {
 		D_STRNDUP(cfg_file, dmg_config_file, MAXPATHLEN);
+		if (cfg_file == NULL)
+			return -DER_NOMEM;
+	}
 
 	if (cfg_file == NULL)
 		D_ASPRINTF(cmd_base, "dmg -j -i %s ", dmg_cmd);
