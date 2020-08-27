@@ -129,7 +129,7 @@ nvme_recov_2(void **state)
 	test_arg_t			*arg = *state;
 	daos_obj_id_t		oid;
 	daos_pool_info_t	pinfo;
-	int					rc;
+	int					rc, i;
 	device_list         *devices = NULL;
 
 	/**
@@ -144,13 +144,22 @@ nvme_recov_2(void **state)
 	io_simple_internal(state, oid, IO_SIZE_NVME, DAOS_IOD_ARRAY,
 			   "io_simple_nvme_array dkey",
 			   "io_simple_nvme_array akey");
+	D_ALLOC_ARRAY(devices, 4);
 	dmg_storage_device_list(dmg_config_file, devices);
+
+	for ( i = 0; i < 4; i++){
+		print_message("\n Rank=%d UUID=%s state=%s", devices[i].rank,
+			DP_UUID(devices[i].device_id), devices[i].state);
+	}
+
 	/**
 	*Get the pool storage information
 	*/
 	rc = pool_storage_info(state, &pinfo);
 	assert_int_equal(rc, 0);
 
+	/* Teardown */
+	D_FREE(devices);
 }
 
 

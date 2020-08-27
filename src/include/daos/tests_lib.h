@@ -166,7 +166,7 @@ struct dts_context {
 };
 
 typedef struct {
-       uuid_t			pool_uuid;
+       uuid_t			device_id;
        const char		*state;
        int				rank;
        const char		*host;

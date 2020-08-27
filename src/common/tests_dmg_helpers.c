@@ -583,20 +583,21 @@ parse_device_info(struct json_object *json_pool, device_list *device_info)
 	return -DER_INVAL;
 	}
 	printf("\n UUID=%s ", json_object_to_json_string(tmp));
-	//uuid_parse(json_object_get_string(tmp), device_info->pool_uuid);
+	uuid_parse(json_object_get_string(tmp), device_info->device_id);
 
 	if (!json_object_object_get_ex(json_pool, "state", &tmp)) {
 		D_ERROR("unable to extract state from JSON\n");
 	return -DER_INVAL;
 	}
-	//device_info->state = json_object_to_json_string(tmp);
 	printf("state=%s ", json_object_to_json_string(tmp));
+	device_info->state = json_object_to_json_string(tmp);
 
 	if (!json_object_object_get_ex(json_pool, "rank", &tmp)) {
 		D_ERROR("unable to extract rank from JSON\n");
 	return -DER_INVAL;
 	}
 	printf("rank=%s \n", json_object_to_json_string(tmp));
+	device_info->rank = atoi(json_object_to_json_string(tmp));
 
 	return 0;
 }
@@ -611,7 +612,7 @@ dmg_storage_device_list(const char *dmg_config_file,
 	struct json_object	*val2 = NULL;
 	struct json_object	*tmp = NULL;
 	struct json_object	*tmp1 = NULL;
-	int			i, rc = 0;
+	int			i, j = 0, rc = 0;
 	int device_length = 0;
 
 	rc = daos_dmg_json_pipe("storage query list-devices", dmg_config_file,
@@ -649,8 +650,8 @@ dmg_storage_device_list(const char *dmg_config_file,
 				device_length = json_object_array_length(tmp);
 				for (i = 0; i < device_length; i++) {
 					tmp1 = json_object_array_get_idx(tmp, i);
-					//devices[i].host = json_object_to_json_string(hosts_list);
-					parse_device_info(tmp1, &devices[i]);
+					devices[i].host = json_object_to_json_string(hosts_list);
+					parse_device_info(tmp1, &devices[j++]);
 				}
 			}
 		}
