@@ -35,5 +35,5 @@ else
     repo_args="${repo_args#|}"
 fi
 cd "$DEB_TOP"
-#sudo pbuilder update --override-config $DISTRO_ID_OPT ${repo_args:+--othermirror "$repo_args"}
+sudo pbuilder update --override-config $DISTRO_ID_OPT ${repo_args:+--othermirror "$repo_args"}
 sudo pbuilder build "$DEB_DSC"
