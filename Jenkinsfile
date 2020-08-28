@@ -314,9 +314,6 @@ pipeline {
         GITHUB_USER = credentials('daos-jenkins-review-posting')
         SSH_KEY_ARGS = "-ici_key"
         CLUSH_ARGS = "-o$SSH_KEY_ARGS"
-        BUILDARGS = docker_build_args()
-        BUILDARGS_QB_CHECK = docker_build_args(qb: quickbuild())
-        BUILDARGS_QB_TRUE = docker_build_args(qb: true)
         QUICKBUILD_DEPS_EL7 = sh label:'Get Quickbuild dependencies',
                                  script: "rpmspec -q --define dist\\ .el7 " +
                                          "--undefine suse_version " +
@@ -369,8 +366,8 @@ pipeline {
                             filename 'Dockerfile.centos.7'
                             dir 'utils/docker'
                             label 'docker_runner'
-                            additionalBuildArgs '$BUILDARGS' +
-                                           "-t ${sanitized_JOB_NAME}-centos7 "
+                            additionalBuildArgs dockerBuildArgs() +
+                                           " -t ${sanitized_JOB_NAME}-centos7 "
                         }
                     }
                     steps {
@@ -423,7 +420,7 @@ pipeline {
                             filename 'Dockerfile.code_scanning'
                             dir 'utils/docker'
                             label 'docker_runner'
-                            additionalBuildArgs '$BUILDARGS'
+                            additionalBuildArgs dockerBuildArgs()
                         }
                     }
                     steps {
@@ -466,7 +463,7 @@ pipeline {
                             filename 'Dockerfile.mockbuild'
                             dir 'utils/rpms/packaging'
                             label 'docker_runner'
-                            additionalBuildArgs '$BUILDARGS'
+                            additionalBuildArgs dockerBuildArgs()
                             args  '--group-add mock --cap-add=SYS_ADMIN --privileged=true'
                         }
                     }
@@ -507,7 +504,7 @@ pipeline {
                             dir 'utils/rpms/packaging'
                             label 'docker_runner'
                             args '--privileged=true'
-                            additionalBuildArgs '$BUILDARGS'
+                            additionalBuildArgs dockerBuildArgs()
                             args  '--group-add mock --cap-add=SYS_ADMIN --privileged=true'
                         }
                     }
@@ -585,11 +582,11 @@ pipeline {
                             filename 'Dockerfile.centos.7'
                             dir 'utils/docker'
                             label 'docker_runner'
-                            additionalBuildArgs "-t ${sanitized_JOB_NAME}-centos7 " +
-                                '$BUILDARGS_QB_CHECK' +
-                                ' --build-arg QUICKBUILD_DEPS="' +
-                                  env.QUICKBUILD_DEPS_EL7 + '"' +
-                                ' --build-arg REPOS="' + pr_repos() + '"'
+                            additionalBuildArgs dockerBuildArgs(qb: quickbuild()) +
+                                                " -t ${sanitized_JOB_NAME}-centos7 " +
+                                                ' --build-arg QUICKBUILD_DEPS="' +
+                                                  env.QUICKBUILD_DEPS_EL7 + '"' +
+                                                ' --build-arg REPOS="' + pr_repos() + '"'
                         }
                     }
                     steps {
@@ -679,11 +676,11 @@ pipeline {
                             filename 'Dockerfile.centos.7'
                             dir 'utils/docker'
                             label 'docker_runner'
-                            additionalBuildArgs "-t ${sanitized_JOB_NAME}-centos7 " +
-                                '$BUILDARGS_QB_CHECK' +
-                                ' --build-arg QUICKBUILD_DEPS="' +
-                                  env.QUICKBUILD_DEPS_EL7 + '"' +
-                                ' --build-arg REPOS="' + pr_repos() + '"'
+                            additionalBuildArgs dockerBuildArgs(qb: quickbuild()) +
+                                                " -t ${sanitized_JOB_NAME}-centos7 " +
+                                                ' --build-arg QUICKBUILD_DEPS="' +
+                                                  env.QUICKBUILD_DEPS_EL7 + '"' +
+                                                ' --build-arg REPOS="' + pr_repos() + '"'
                         }
                     }
                     steps {
@@ -724,11 +721,11 @@ pipeline {
                             filename 'Dockerfile.centos.7'
                             dir 'utils/docker'
                             label 'docker_runner'
-                            additionalBuildArgs "-t ${sanitized_JOB_NAME}-centos7 " +
-                                '$BUILDARGS_QB_CHECK' +
-                                ' --build-arg QUICKBUILD_DEPS="' +
-                                  env.QUICKBUILD_DEPS_EL7 + '"' +
-                                ' --build-arg REPOS="' + pr_repos() + '"'
+                            additionalBuildArgs dockerBuildArgs(qb: quickbuild()) +
+                                                " -t ${sanitized_JOB_NAME}-centos7 " +
+                                                ' --build-arg QUICKBUILD_DEPS="' +
+                                                  env.QUICKBUILD_DEPS_EL7 + '"' +
+                                                ' --build-arg REPOS="' + pr_repos() + '"'
                         }
                     }
                     steps {
@@ -769,10 +766,10 @@ pipeline {
                             filename 'Dockerfile.centos.7'
                             dir 'utils/docker'
                             label 'docker_runner'
-                            additionalBuildArgs "-t ${sanitized_JOB_NAME}-centos7 " +
-                                '$BUILDARGS_QB_CHECK' +
-                                ' --build-arg QUICKBUILD_DEPS="' +
-                                  env.QUICKBUILD_DEPS_EL7 + '"'
+                            additionalBuildArgs dockerBuildArgs(qb: quickbuild()) +
+                                                " -t ${sanitized_JOB_NAME}-centos7 " +
+                                                ' --build-arg QUICKBUILD_DEPS="' +
+                                                  env.QUICKBUILD_DEPS_EL7 + '"'
                         }
                     }
                     steps {
@@ -813,8 +810,8 @@ pipeline {
                             filename 'Dockerfile.ubuntu.20.04'
                             dir 'utils/docker'
                             label 'docker_runner'
-                            additionalBuildArgs "-t ${sanitized_JOB_NAME}-ubuntu20.04 " +
-                                                '$BUILDARGS'
+                            additionalBuildArgs dockerBuildArgs() +
+                                                " -t ${sanitized_JOB_NAME}-ubuntu20.04"
                         }
                     }
                     steps {
@@ -857,8 +854,8 @@ pipeline {
                             filename 'Dockerfile.ubuntu.20.04'
                             dir 'utils/docker'
                             label 'docker_runner'
-                            additionalBuildArgs "-t ${sanitized_JOB_NAME}-ubuntu20.04 " +
-                                                '$BUILDARGS'
+                            additionalBuildArgs dockerBuildArgs() +
+                                                " -t ${sanitized_JOB_NAME}-ubuntu20.04"
                         }
                     }
                     steps {
@@ -892,11 +889,11 @@ pipeline {
                             filename 'Dockerfile.leap.15'
                             dir 'utils/docker'
                             label 'docker_runner'
-                            additionalBuildArgs "-t ${sanitized_JOB_NAME}-leap15 " +
-                                '$BUILDARGS_QB_CHECK' +
-                                ' --build-arg QUICKBUILD_DEPS="' +
-                                  env.QUICKBUILD_DEPS_LEAP15 + '"' +
-                                ' --build-arg REPOS="' + pr_repos() + '"'
+                            additionalBuildArgs dockerBuildArgs(qb: quickbuild()) +
+                                                " -t ${sanitized_JOB_NAME}-leap15 " +
+                                                ' --build-arg QUICKBUILD_DEPS="' +
+                                                  env.QUICKBUILD_DEPS_LEAP15 + '"' +
+                                                ' --build-arg REPOS="' + pr_repos() + '"'
                         }
                     }
                     steps {
@@ -938,8 +935,8 @@ pipeline {
                             filename 'Dockerfile.leap.15'
                             dir 'utils/docker'
                             label 'docker_runner'
-                            additionalBuildArgs "-t ${sanitized_JOB_NAME}-leap15 " +
-                                                 '$BUILDARGS'
+                            additionalBuildArgs dockerBuildArgs() +
+                                                " -t ${sanitized_JOB_NAME}-leap15"
                         }
                     }
                     steps {
@@ -982,8 +979,8 @@ pipeline {
                             filename 'Dockerfile.leap.15'
                             dir 'utils/docker'
                             label 'docker_runner'
-                            additionalBuildArgs "-t ${sanitized_JOB_NAME}-leap15 " +
-                                                '$BUILDARGS'
+                            additionalBuildArgs dockerBuildArgs() +
+                                                " -t ${sanitized_JOB_NAME}-leap15"
                             args '-v /opt/intel:/opt/intel'
                         }
                     }
@@ -1103,11 +1100,11 @@ pipeline {
                             filename 'Dockerfile.centos.7'
                             dir 'utils/docker'
                             label 'docker_runner'
-                            additionalBuildArgs "-t ${sanitized_JOB_NAME}-centos7 " +
-                                '$BUILDARGS_QB_TRUE' +
-                                ' --build-arg QUICKBUILD_DEPS="' +
-                                  env.QUICKBUILD_DEPS_EL7 + '"' +
-                                ' --build-arg REPOS="' + pr_repos() + '"'
+                            additionalBuildArgs dockerBuildArgs(qb: true) +
+                                                " -t ${sanitized_JOB_NAME}-centos7 " +
+                                                ' --build-arg QUICKBUILD_DEPS="' +
+                                                  env.QUICKBUILD_DEPS_EL7 + '"' +
+                                                ' --build-arg REPOS="' + pr_repos() + '"'
                         }
                     }
                     steps {
