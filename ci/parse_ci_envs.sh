@@ -19,6 +19,10 @@ if [ -n "${STAGE_NAME:?}" ]; then
       : "${CHROOT_NAME:=opensuse-leap-15.2-x86_64}"
       : "${TARGET:=leap15}"
       ;;
+    *Ubuntu 20.04*|*ubuntu2004*)
+      : "${CHROOT_NAME:=""}"
+      : "${TARGET:=ubuntu20}"
+      ;;
   esac
 fi
 export CHROOT_NAME

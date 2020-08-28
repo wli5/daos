@@ -23,4 +23,4 @@ fi
 
 rm -rf "artifacts/${TARGET}/"
 mkdir -p "artifacts/${TARGET}/"
-make CHROOT_NAME="${CHROOT_NAME}" -C utils/rpms chrootbuild
+TOPDIR=$PWD make CHROOT_NAME="${CHROOT_NAME}" -C utils/rpms chrootbuild
