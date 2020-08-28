@@ -259,48 +259,6 @@ def getuid() {
     return cached_uid
 }
 
-// This sets up the additinal build arguments for setting up a docker
-// build agent from a dockerfile.
-// The result of this function need to be stored in an environment
-// variable.  Calling this function to create a docker build agent
-// fails.  The log shows a truncated command string.
-def docker_build_args(Map config = [:]) {
-    ret_str = " --build-arg NOBUILD=1 --build-arg UID=" + getuid() +
-              " --build-arg JENKINS_URL=$env.JENKINS_URL" +
-              " --build-arg CACHEBUST=${currentBuild.startTimeInMillis}"
-
-    if (env.REPOSITORY_URL) {
-      ret_str += ' --build-arg REPO_URL=' + env.REPOSITORY_URL
-    }
-    if (env.DAOS_STACK_EL_7_LOCAL_REPO) {
-      ret_str += ' --build-arg REPO_EL7=' + env.DAOS_STACK_EL_7_LOCAL_REPO
-    }
-    if (env.DAOS_STACK_EL_8_LOCAL_REPO) {
-      ret_str += ' --build-arg REPO_EL8=' + env.DAOS_STACK_EL_8_LOCAL_REPO
-    }
-    if (env.DAOS_STACK_LEAP_15_LOCAL_REPO) {
-      ret_str += ' --build-arg REPO_LOCAL_LEAP15=' +
-                 env.DAOS_STACK_LEAP_15_LOCAL_REPO
-    }
-    if (env.DAOS_STACK_LEAP_15_GROUP_REPO) {
-      ret_str += ' --build-arg REPO_GROUP_LEAP15=' +
-                 env.DAOS_STACK_LEAP_15_GROUP_REPO
-    }
-    if (env.HTTP_PROXY) {
-      ret_str += ' --build-arg HTTP_PROXY="' + env.HTTP_PROXY + '"'
-                 ' --build-arg http_proxy="' + env.HTTP_PROXY + '"'
-    }
-    if (env.HTTPS_PROXY) {
-      ret_str += ' --build-arg HTTPS_PROXY="' + env.HTTPS_PROXY + '"'
-                 ' --build-arg https_proxy="' + env.HTTPS_PROXY + '"'
-    }
-    if (config['qb']) {
-      ret_str += ' --build-arg QUICKBUILD=true'
-    }
-    ret_str += ' '
-    return ret_str
-}
-
 pipeline {
     agent { label 'lightweight' }
 
