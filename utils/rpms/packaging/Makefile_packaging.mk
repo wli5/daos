@@ -297,7 +297,7 @@ endif
 endif
 ifeq ($(ID_LIKE),debian)
 chrootbuild: $(DEB_TOP)/$(DEB_DSC)
-	$(call distro_map)                                                                                  \
+	$(call distro_map)                                      \
 	DISTRO="$$distro"                                       \
 	PR_REPOS="$(PR_REPOS)"                                  \
 	DISTRO_BASE_PR_REPOS="$(DISTRO_BASE_PR_REPOS)"          \
@@ -311,6 +311,7 @@ chrootbuild: $(DEB_TOP)/$(DEB_DSC)
 	packaging/debian_chrootbuild
 else
 chrootbuild: $(SRPM) $(CALLING_MAKEFILE)
+	$(call distro_map)                                      \
 	DISTRO="$$distro"                                       \
 	CHROOT_NAME="$(CHROOT_NAME)"                            \
 	PR_REPOS="$(PR_REPOS)"                                  \
