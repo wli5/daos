@@ -22,6 +22,8 @@ if [ -d /var/cache/pbuilder/ ]; then
     (if cd "$mockroot/result/"; then
       cp -r . "$artdir"
     fi)
+    # fake file just to keep stash happy
+    touch "${TARGET}-rpm-version"
     exit 0
 fi
 
