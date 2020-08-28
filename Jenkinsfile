@@ -12,7 +12,7 @@
 
 // To use a test branch (i.e. PR) until it lands to master
 // I.e. for testing library changes
-//@Library(value="pipeline-lib@your_branch") _
+@Library(value="pipeline-lib@bmurrell/build-leap-on-15.2-and-ubuntu-20.04") _
 
 boolean doc_only_change() {
     if (cachedCommitPragma(pragma: 'Doc-only') == 'true') {
@@ -548,7 +548,7 @@ pipeline {
                             dir 'utils/rpms/packaging'
                             label 'docker_runner'
                             args '--privileged=true'
-                            additionalBuildArgs '$BUILDARGS'
+                            additionalBuildArgs dockerBuildArgs()
                             args  '--cap-add=SYS_ADMIN --privileged=true'
                         }
                     }
