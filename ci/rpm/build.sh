@@ -25,3 +25,6 @@ rm -rf "artifacts/${TARGET}/"
 mkdir -p "artifacts/${TARGET}/"
 DEBEMAIL="$DAOS_EMAIL" DEBFULLNAME="$DAOS_FULLNAME" \
 TOPDIR=$PWD make CHROOT_NAME="${CHROOT_NAME}" -C utils/rpms chrootbuild
+rc=$?
+echo "exit was $rc"
+exit $rc
