@@ -25,13 +25,17 @@ package server
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/pkg/errors"
 	"golang.org/x/net/context"
 
 	"github.com/daos-stack/daos/src/control/common/proto"
+	"github.com/daos-stack/daos/src/control/common/proto/convert"
 	ctlpb "github.com/daos-stack/daos/src/control/common/proto/ctl"
+	mgmtpb "github.com/daos-stack/daos/src/control/common/proto/mgmt"
 	"github.com/daos-stack/daos/src/control/logging"
+	"github.com/daos-stack/daos/src/control/server/storage"
 	"github.com/daos-stack/daos/src/control/server/storage/bdev"
 	"github.com/daos-stack/daos/src/control/server/storage/scm"
 )
@@ -127,14 +131,83 @@ func (c *StorageControlService) StoragePrepare(ctx context.Context, req *ctlpb.S
 	return resp, nil
 }
 
+func (c *ControlService) updateBdevHealthSmd(ctx context.Context, ctrlrs storage.NvmeControllers) error {
+	c.log.Debugf("updateBdevHealthSmd(): before %v", ctrlrs)
+
+	var healthResps map[string]*mgmtpb.BioHealthResp
+
+	for _, srv := range c.harness.Instances() {
+		devsResp, lsdErr := srv.listSmdDevices(ctx, new(mgmtpb.SmdDevReq))
+		if lsdErr != nil {
+			return errors.Wrapf(lsdErr, "instance %d listSmdDevices()", srv.Index())
+		}
+
+		for _, bs := range devsResp.Devices {
+			healthResp, gbhErr := srv.getBioHealth(ctx, &mgmtpb.BioHealthReq{
+				DevUuid: bs.Uuid,
+			})
+			if gbhErr != nil {
+				return errors.Wrapf(lsdErr, "instance %d getBioHealth()",
+					srv.Index())
+			}
+
+			var emptyIdField string
+			if strings.TrimSpace(healthResp.BdsModel) == "" {
+				emptyIdField = "model"
+			} else if strings.TrimSpace(healthResp.BdsSerial) == "" {
+				emptyIdField = "serial"
+			}
+			if emptyIdField != "" {
+				c.log.Debugf("skipping health stats for uuid %s, %s id empty",
+					healthResp.DevUuid, emptyIdField)
+			}
+			modelSerial := healthResp.BdsModel + healthResp.BdsSerial
+
+			msg := fmt.Sprintf("health stats received for %s (blobstore %s)",
+				modelSerial, healthResp.DevUuid)
+
+			if _, exists := healthResps[modelSerial]; exists {
+				return errors.Errorf("duplicate %s", msg)
+			}
+			healthResps[modelSerial] = healthResp
+
+			c.log.Debugf(msg)
+		}
+	}
+
+	for _, ctrlr := range ctrlrs {
+		// update relevant entry in input list
+		var emptyIdField string
+		if strings.TrimSpace(ctrlr.Model) == "" {
+			emptyIdField = "model"
+		} else if strings.TrimSpace(ctrlr.Serial) == "" {
+			emptyIdField = "serial"
+		}
+		if emptyIdField != "" {
+			return errors.Errorf("skipping health stats for uuid controller %s, %s id empty",
+				ctrlr.PciAddr, emptyIdField)
+		}
+		modelSerial := ctrlr.Model + ctrlr.Serial
+
+		if err := convert.Types(healthResps[modelSerial], ctrlr.HealthStats); err != nil {
+			return errors.Wrapf(err, "updating controller %s (%s) health from smd %s",
+				ctrlr.PciAddr, modelSerial, healthResps[modelSerial].DevUuid)
+		}
+	}
+
+	return nil
+}
+
+// CallDrpc list devices and then issue bio health query for each device, perform on each instance
 // StorageScan discovers non-volatile storage hardware on node.
-func (c *StorageControlService) StorageScan(ctx context.Context, req *ctlpb.StorageScanReq) (*ctlpb.StorageScanResp, error) {
+func (c *ControlService) StorageScan(ctx context.Context, req *ctlpb.StorageScanReq) (*ctlpb.StorageScanResp, error) {
 	c.log.Debug("received StorageScan RPC")
 
 	msg := "Storage Scan "
 	resp := new(ctlpb.StorageScanResp)
 
-	bdevReq := bdev.ScanRequest{Rescan: true}
+	// cache controller details by default
+	bdevReq := bdev.ScanRequest{Rescan: false}
 	if req.ConfigDevicesOnly {
 		for _, storageCfg := range c.instanceStorage {
 			bdevReq.DeviceList = append(bdevReq.DeviceList,
@@ -151,9 +224,15 @@ func (c *StorageControlService) StorageScan(ctx context.Context, req *ctlpb.Stor
 				scanErr.Error(), "", msg+"NVMe"),
 		}
 	} else {
+		if req.ConfigDevicesOnly {
+			// return up-to-date health stats and smd info
+			if err := updateBdevHealthSmd(bsr.Controllers); err != nil {
+				return nil, errors.Wrap(err, "updating bdev health and smd info")
+			}
+		}
 		pbCtrlrs := make(proto.NvmeControllers, 0, len(bsr.Controllers))
 		if err := pbCtrlrs.FromNative(bsr.Controllers); err != nil {
-			return nil, errors.Wrapf(err, "failed to cleanly convert %#v to protobuf", bsr.Controllers)
+			return nil, errors.Wrapf(err, "convert %#v to protobuf format", bsr.Controllers)
 		}
 		resp.Nvme = &ctlpb.ScanNvmeResp{
 			State:  newState(c.log, ctlpb.ResponseStatus_CTL_SUCCESS, "", "", msg+"NVMe"),
@@ -198,7 +277,7 @@ func (c *StorageControlService) StorageScan(ctx context.Context, req *ctlpb.Stor
 		}
 	}
 
-	c.log.Debug("responding to StorageScan RPC")
+	thisc.log.Debug("responding to StorageScan RPC")
 
 	return resp, nil
 }

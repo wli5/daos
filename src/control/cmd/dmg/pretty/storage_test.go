@@ -293,7 +293,7 @@ host1
 					"host1",
 					&control.HostStorage{
 						SmdInfo: &control.SmdInfo{
-							Devices: []*control.SmdDevice{
+							Devices: []*storage.SmdDevice{
 								{
 									UUID:      common.MockUUID(0),
 									TargetIDs: []int32{0, 1, 2},
@@ -348,7 +348,7 @@ host1
 					"host1",
 					&control.HostStorage{
 						SmdInfo: &control.SmdInfo{
-							Devices: []*control.SmdDevice{
+							Devices: []*storage.SmdDevice{
 								{
 									UUID:      common.MockUUID(0),
 									TargetIDs: []int32{0, 1, 2},

@@ -157,3 +157,39 @@ func (srv *IOServerInstance) TryDrpc(ctx context.Context, method drpc.Method) *s
 		return result
 	}
 }
+
+func (srv *IOServerInstance) getBioHealth(ctx context.Context, req *mgmtpb.BioHealthReq) (*mgmtpb.BioHealthResp, error) {
+	dresp, err := srv.CallDrpc(drpc.MethodBioHealth, req)
+	if err != nil {
+		return nil, err
+	}
+
+	resp := &mgmtpb.BioHealthResp{}
+	if err = proto.Unmarshal(dresp.Body, resp); err != nil {
+		return nil, errors.Wrap(err, "unmarshal BioHealthQuery response")
+	}
+
+	if resp.Status != 0 {
+		return nil, errors.Wrap(drpc.DaosStatus(resp.Status), "getBioHealth failed")
+	}
+
+	return resp, nil
+}
+
+func (srv *IOServerInstance) listSmdDevices(ctx context.Context, req *mgmtpb.SmdDevReq) (*mgmtpb.SmdDevResp, error) {
+	dresp, err := srv.CallDrpc(drpc.MethodSmdDevs, req)
+	if err != nil {
+		return nil, err
+	}
+
+	resp := new(mgmtpb.SmdDevResp)
+	if err = proto.Unmarshal(dresp.Body, resp); err != nil {
+		return nil, errors.Wrap(err, "unmarshal SmdListDevs response")
+	}
+
+	if resp.Status != 0 {
+		return nil, errors.Wrap(drpc.DaosStatus(resp.Status), "listSmdDevices failed")
+	}
+
+	return resp, nil
+}
