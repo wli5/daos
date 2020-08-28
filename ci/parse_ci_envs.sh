@@ -20,7 +20,7 @@ if [ -n "${STAGE_NAME:?}" ]; then
       : "${TARGET:=leap15}"
       ;;
     *Ubuntu\ 20.04*|*ubuntu2004*)
-      : "${CHROOT_NAME:=""}"
+      : "${CHROOT_NAME:="not_applicable"}"
       : "${TARGET:=ubuntu20}"
       ;;
   esac

@@ -15,10 +15,19 @@ fi
 : "${CHROOT_NAME:=epel-7-x86_64}"
 : "${TARGET:=centos7}"
 
+artdir="${PWD}/artifacts/${TARGET}"
+
+if [ -d /var/cache/pbuilder/ ]; then
+    mockroot=/var/cache/pbuilder/
+    (if cd "$mockroot/result/"; then
+      cp -r . "$artdir"
+    fi)
+    exit 0
+fi
+
 mockroot=/var/lib/mock/${CHROOT_NAME}
 cat "$mockroot"/result/{root,build}.log 2>/dev/null || true
 
-artdir="${PWD}/artifacts/${TARGET}"
 if srpms="$(ls _topdir/SRPMS/*)"; then
   cp -af "$srpms" "$artdir"
 fi
