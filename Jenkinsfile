@@ -14,20 +14,17 @@
 // I.e. for testing library changes
 @Library(value="pipeline-lib@bmurrell/build-leap-on-15.2-and-ubuntu-20.04") _
 
-boolean doc_only_change() {
-    if (cachedCommitPragma(pragma: 'Doc-only') == 'true') {
-        return true
-    }
-    if (cachedCommitPragma(pragma: 'Doc-only') == 'false') {
-        return false
+commit_pragma_cache = [:]
+def cachedCommitPragma(Map config) {
+
+    if (commit_pragma_cache[config['pragma']]) {
+        return commit_pragma_cache[config['pragma']]
     }
 
-    def rc = sh label: "Determine if doc-only change",
-                script: "CHANGE_ID=${env.CHANGE_ID} " +
-                        "TARGET_BRANCH=${target_branch} " +
-                        'ci/doc_only_change.sh',
-                returnStatus: true
-    return rc == 1
+    commit_pragma_cache[config['pragma']] = commitPragma(config)
+
+    return commit_pragma_cache[config['pragma']]
+
 }
 
 def skip_stage(String stage, boolean def_val = false) {
@@ -138,19 +135,6 @@ String unit_packages() {
     } else {
         error 'unit packages not implemented for ' + stage_info['target']
     }
-}
-
-commit_pragma_cache = [:]
-def cachedCommitPragma(Map config) {
-
-    if (commit_pragma_cache[config['pragma']]) {
-        return commit_pragma_cache[config['pragma']]
-    }
-
-    commit_pragma_cache[config['pragma']] = commitPragma(config)
-
-    return commit_pragma_cache[config['pragma']]
-
 }
 
 String daos_packages_version() {
@@ -316,7 +300,7 @@ pipeline {
                         beforeAgent true
                         allOf {
                             expression { ! skip_stage('checkpatch') }
-                            expression { ! doc_only_change() }
+                            expression { ! docOnlyChange() }
                         }
                     }
                     agent {
@@ -409,7 +393,7 @@ pipeline {
                     branch target_branch
                     allOf {
                         expression { ! skip_stage('build') }
-                        expression { ! doc_only_change() }
+                        expression { ! docOnlyChange() }
                         expression { cachedCommitPragma(pragma: 'RPM-test-version') == '' }
                     }
                 }
@@ -977,7 +961,7 @@ pipeline {
                     // nothing to test if build was skipped
                     expression { ! skip_stage('build') }
                     // or it's a doc-only change
-                    expression { ! doc_only_change() }
+                    expression { ! docOnlyChange() }
                     expression { ! skip_stage('test') }
                     expression { cachedCommitPragma(pragma: 'RPM-test-version') == '' }
                 }
@@ -1043,7 +1027,7 @@ pipeline {
                     // nothing to test if build was skipped
                     expression { ! skip_stage('build') }
                     // or it's a doc-only change
-                    expression { ! doc_only_change() }
+                    expression { ! docOnlyChange() }
                     expression { ! skip_stage('test') }
                 }
             }
