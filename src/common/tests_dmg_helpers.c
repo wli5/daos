@@ -608,10 +608,10 @@ dmg_storage_device_list(const char *dmg_config_file, int *ndisks,
 	struct json_object	*hosts = NULL;
 	struct json_object	*smd_info = NULL;
 	struct json_object	*smd_dev = NULL;
-	struct json_object	*device_array = NULL;
-	int			device_length = 0;
-	int			total_disk = 0;
-	int			i, rc = 0;
+	struct json_object	*dev_array = NULL;
+	int					device_length = 0;
+	int					total_disk = 0;
+	int					i, rc = 0;
 
 	rc = daos_dmg_json_pipe("storage query list-devices", dmg_config_file,
 				NULL, 0, &dmg_out);
@@ -641,25 +641,27 @@ dmg_storage_device_list(const char *dmg_config_file, int *ndisks,
 
 			json_object_object_get_ex(val1, "smd_info", &smd_info);
 			if (smd_info != NULL) {
-				if (!json_object_object_get_ex(smd_info, "devices",
-					&smd_dev)) {
-					D_ERROR("unable to extract devices from JSON\n");
+				if (!json_object_object_get_ex(smd_info,
+					"devices", &smd_dev)) {
+					D_ERROR("unable to extract devices\n");
 					return -DER_INVAL;
 				}
-				
+
 				if (smd_dev != NULL)
-					device_length = json_object_array_length(smd_dev);
+					device_length = json_object_array_length(
+						smd_dev);
 
 				if (ndisks != NULL)
 					*ndisks = *ndisks + device_length;
-				
+
 				if (devices != NULL) {
 					for (i = 0; i < device_length; i++) {
-						device_array = json_object_array_get_idx(
+						dev_array = json_object_array_get_idx(
 							smd_dev, i);
 						strcpy(devices[total_disk].host,
-							json_object_to_json_string(hosts));
-						parse_device_info(device_array,
+							json_object_to_json_string(
+								hosts));
+						parse_device_info(dev_array,
 							&devices[total_disk++]);
 					}
 				}

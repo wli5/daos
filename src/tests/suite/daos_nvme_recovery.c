@@ -126,12 +126,12 @@ nvme_recov_1(void **state)
 static void
 nvme_recov_2(void **state)
 {
-	test_arg_t		*arg = *state;
-	device_list		*devices = NULL;
+	test_arg_t			*arg = *state;
+	device_list         *devices = NULL;
 	daos_obj_id_t		oid;
 	daos_pool_info_t	pinfo;
-	int			ndisks;
-	int			rc, i;
+	int					ndisks;
+	int					rc, i;
 
 	/**
 	*Get the pool storage information
@@ -156,9 +156,10 @@ nvme_recov_2(void **state)
 	D_ALLOC_ARRAY(devices, ndisks);
 	rc = dmg_storage_device_list(dmg_config_file, NULL, devices);
 	assert_int_equal(rc, 0);
-	for ( i = 0; i < ndisks; i++){
-		print_message("Rank=%d UUID=%s state=%s host=%s\n", devices[i].rank,
-			DP_UUID(devices[i].device_id), devices[i].state, devices[i].host);
+	for (i = 0; i < ndisks; i++) {
+		print_message("Rank=%d UUID=%s state=%s host=%s\n",
+			devices[i].rank, DP_UUID(devices[i].device_id),
+			devices[i].state, devices[i].host);
 	}
 
 	/**
