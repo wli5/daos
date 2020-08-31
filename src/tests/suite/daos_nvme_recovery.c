@@ -126,12 +126,12 @@ nvme_recov_1(void **state)
 static void
 nvme_recov_2(void **state)
 {
-	test_arg_t			*arg = *state;
-	device_list         *devices = NULL;
+	test_arg_t		*arg = *state;
+	device_list		*devices = NULL;
 	daos_obj_id_t		oid;
 	daos_pool_info_t	pinfo;
-	int					ndisks;
-	int					rc, i;
+	int			ndisks;
+	int			rc, i;
 
 	/**
 	*Get the pool storage information

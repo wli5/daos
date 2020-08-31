@@ -609,9 +609,9 @@ dmg_storage_device_list(const char *dmg_config_file, int *ndisks,
 	struct json_object	*smd_info = NULL;
 	struct json_object	*smd_dev = NULL;
 	struct json_object	*dev_array = NULL;
-	int					device_length = 0;
-	int					total_disk = 0;
-	int					i, rc = 0;
+	int			device_length = 0;
+	int			total_disk = 0;
+	int			i, rc = 0;
 
 	rc = daos_dmg_json_pipe("storage query list-devices", dmg_config_file,
 				NULL, 0, &dmg_out);
