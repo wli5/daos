@@ -20,23 +20,6 @@ boolean quickbuild() {
     return cachedCommitPragma(pragma: 'Quick-build', cache: commit_pragma_cache) == 'true'
 }
 
-String get_daos_packages() {
-    Map stage_info = parseStageInfo()
-    return get_daos_packages(stage_info['target'])
-}
-
-String get_daos_packages(String distro) {
-
-    String pkgs
-    if (env.TEST_RPMS == 'true') {
-        pkgs = "daos{,-{client,tests,server}}"
-    } else {
-        pkgs = "daos{,-client}"
-    }
-
-    return pkgs + "-" + daos_packages_version(distro)
-}
-
 String pr_repos() {
     Map stage_info = parseStageInfo()
     return pr_repos(stage_info['target'])
@@ -111,35 +94,6 @@ String unit_packages() {
     }
 }
 
-String daos_packages_version() {
-    stage_info = parseStageInfo()
-    return daos_packages_version(stage_info['target'])
-}
-
-String daos_packages_version(String distro) {
-    // commit pragma has highest priority
-    // TODO: this should actually be determined from the PR-repos artifacts
-    String version = cachedCommitPragma(pragma: 'RPM-test-version', cache: commit_pragma_cache)
-    if (version != "") {
-        String dist
-        if (distro == "centos7") {
-            dist = "el7"
-        } else if (distro == "leap15") {
-            dist = "suse.lp152"
-        }
-        return version + "." + dist
-    }
-
-    // use the stash after that
-    unstash distro + '-rpm-version'
-    version = readFile(distro + '-rpm-version').trim()
-    if (version != "") {
-        return version
-    }
-
-    error "Don't know how to determine package version for " + distro
-}
-
 boolean parallel_build() {
     // defaults to false
     // true if Quick-build: true unless Parallel-build: false
@@ -167,7 +121,7 @@ String functional_packages() {
 }
 
 String functional_packages(String distro) {
-    String pkgs = get_daos_packages(distro)
+    String pkgs = getDAOSPackages(distro)
     pkgs += " openmpi3 hwloc ndctl fio " +
             "ior-hpc-cart-4-daos-0 " +
             "romio-tests-cart-4-daos-0 " +
@@ -1171,7 +1125,7 @@ pipeline {
                     }
                     steps {
                         testRpm inst_repos: daos_repos(),
-                                daos_pkg_version: daos_packages_version()
+                                daos_pkg_version: daosPackagesVersion()
                    }
                 } // stage('Test CentOS 7 RPMs')
                 stage('Scan CentOS 7 RPMs') {
@@ -1189,7 +1143,7 @@ pipeline {
                     }
                     steps {
                         testRpm inst_repos: daos_repos(),
-                                daos_pkg_version: daos_packages_version(),
+                                daos_pkg_version: daosPackagesVersion(),
                                 inst_rpms: 'clamav clamav-devel',
                                 test_script: 'ci/rpm/scan_daos.sh',
                                 junit_files: 'maldetect.xml'
