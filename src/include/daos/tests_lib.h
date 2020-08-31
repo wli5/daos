@@ -310,6 +310,18 @@ int dmg_pool_create(const char *dmg_config_file,
 int dmg_pool_destroy(const char *dmg_config_file,
 		     const uuid_t uuid, const char *grp, int force);
 
-int dmg_storage_device_list(const char *dmg_config_file, device_list *devices);
+/**
+ * List all disks in the specified DAOS system.
+ *
+ * \param dmg_config_file
+ *				[IN]	DMG config file
+ * \param ndisks	[OUT]
+  *				[OUT] Number of drives  in the DAOS system.
+ * \param devices	[OUT]	Array of NVMe device information structures.
+ *				NULL is permitted in which case only the
+ *				number of disks will be returned in \a ndisks.
+ */
+int dmg_storage_device_list(const char *dmg_config_file, int *ndisks,
+			device_list *devices);
 
 #endif /* __DAOS_TESTS_LIB_H__ */

@@ -126,11 +126,12 @@ nvme_recov_1(void **state)
 static void
 nvme_recov_2(void **state)
 {
-	test_arg_t			*arg = *state;
+	test_arg_t		*arg = *state;
+	device_list		*devices = NULL;
 	daos_obj_id_t		oid;
 	daos_pool_info_t	pinfo;
-	int					rc, i;
-	device_list         *devices = NULL;
+	int			ndisks;
+	int			rc, i;
 
 	/**
 	*Get the pool storage information
@@ -139,16 +140,24 @@ nvme_recov_2(void **state)
 	assert_int_equal(rc, 0);
 
 	oid = dts_oid_gen(dts_obj_class, 0, arg->myrank);
-	print_message("nvme_recov_2...\n");
-	print_message("DAOS_IOD_ARRAY:NVMe\n");
 	io_simple_internal(state, oid, IO_SIZE_NVME, DAOS_IOD_ARRAY,
 			   "io_simple_nvme_array dkey",
 			   "io_simple_nvme_array akey");
-	D_ALLOC_ARRAY(devices, 4);
-	dmg_storage_device_list(dmg_config_file, devices);
 
-	for ( i = 0; i < 4; i++){
-		print_message("\n Rank=%d UUID=%s state=%s host=%s", devices[i].rank,
+	/**
+	*Get the Number of devices
+	*/
+	rc = dmg_storage_device_list(dmg_config_file, &ndisks, NULL);
+	assert_int_equal(rc, 0);
+
+	/**
+	*Get the Device info
+	*/
+	D_ALLOC_ARRAY(devices, ndisks);
+	rc = dmg_storage_device_list(dmg_config_file, NULL, devices);
+	assert_int_equal(rc, 0);
+	for ( i = 0; i < ndisks; i++){
+		print_message("Rank=%d UUID=%s state=%s host=%s\n", devices[i].rank,
 			DP_UUID(devices[i].device_id), devices[i].state, devices[i].host);
 	}
 
