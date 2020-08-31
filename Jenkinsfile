@@ -129,7 +129,7 @@ pipeline {
                         beforeAgent true
                         allOf {
                             expression { ! skipStage(stage: 'checkpatch') }
-                            expression { ! docOnlyChange() }
+                            expression { ! docOnlyChange(target_branch) }
                         }
                     }
                     agent {
@@ -223,7 +223,7 @@ pipeline {
                     branch target_branch
                     allOf {
                         expression { ! skipStage(stage: 'build') }
-                        expression { ! docOnlyChange() }
+                        expression { ! docOnlyChange(target_branch) }
                         expression { cachedCommitPragma(pragma: 'RPM-test-version', cache: commit_pragma_cache) == '' }
                     }
                 }
@@ -792,7 +792,7 @@ pipeline {
                     // nothing to test if build was skipped
                     expression { ! skipStage(stage: 'build') }
                     // or it's a doc-only change
-                    expression { ! docOnlyChange() }
+                    expression { ! docOnlyChange(target_branch) }
                     expression { ! skipStage(stage: 'test') }
                     expression { cachedCommitPragma(pragma: 'RPM-test-version', cache: commit_pragma_cache) == '' }
                 }
@@ -859,7 +859,7 @@ pipeline {
                     // nothing to test if build was skipped
                     expression { ! skipStage(stage: 'build') }
                     // or it's a doc-only change
-                    expression { ! docOnlyChange() }
+                    expression { ! docOnlyChange(target_branch) }
                     expression { ! skipStage(stage: 'test') }
                 }
             }
