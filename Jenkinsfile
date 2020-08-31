@@ -20,39 +20,6 @@ boolean quickbuild() {
     return cachedCommitPragma(pragma: 'Quick-build', cache: commit_pragma_cache) == 'true'
 }
 
-String daos_repo() {
-    if (cachedCommitPragma(pragma: 'RPM-test-version', cache: commit_pragma_cache) == '') {
-        return "daos@${env.BRANCH_NAME}:${env.BUILD_NUMBER}"
-    } else {
-        return ""
-    }
-}
-
-String hw_distro_target() {
-    if (env.STAGE_NAME.contains('Hardware')) {
-        if (env.STAGE_NAME.contains('Small')) {
-            return hw_distro('small')
-        }
-        if (env.STAGE_NAME.contains('Medium')) {
-            return hw_distro('medium')
-        }
-        if (env.STAGE_NAME.contains('Large')) {
-            return hw_distro('large')
-        }
-    }
-    Map stage_info = parseStageInfo()
-    return stage_info['target']
-}
-
-String daos_repos() {
-    String target = hw_distro_target()
-    return daos_repos(target)
-}
-
-String daos_repos(String distro) {
-    return prRepos(distro) + ' ' + daos_repo()
-}
-
 String unit_packages() {
     Map stage_info = parseStageInfo()
     if (stage_info['target'] == 'centos7') {
@@ -89,17 +56,8 @@ boolean parallel_build() {
     return false
 }
 
-String hw_distro(String size) {
-    // Possible values:
-    //'leap15
-    //'centos7
-    return cachedCommitPragma(pragma: 'Func-hw-test-' + size + '-distro',
-                              def_val: cachedCommitPragma(pragma: 'Func-hw-test-distro',
-                                                          def_val: 'centos7', cache: commit_pragma_cache), cache: commit_pragma_cache)
-}
-
 String functional_packages() {
-    String target = hw_distro_target()
+    String target = hwDistroTarget()
     return functional_packages(target)
 }
 
@@ -989,7 +947,7 @@ pipeline {
                         label 'ci_vm9'
                     }
                     steps {
-                        functionalTest inst_repos: daos_repos(),
+                        functionalTest inst_repos: daosRepos(),
                                        inst_rpms: functional_packages()
                     }
                     post {
@@ -1011,7 +969,7 @@ pipeline {
                         label 'ci_vm9'
                     }
                     steps {
-                        functionalTest inst_repos: daos_repos(),
+                        functionalTest inst_repos: daosRepos(),
                                        inst_rpms: functional_packages()
                     }
                     post {
@@ -1034,8 +992,8 @@ pipeline {
                         label 'ci_nvme3'
                     }
                     steps {
-                        functionalTest target: hw_distro_target(),
-                                       inst_repos: daos_repos(),
+                        functionalTest target: hwDistroTarget(),
+                                       inst_repos: daosRepos(),
                                        inst_rpms: functional_packages()
                     }
                     post {
@@ -1058,8 +1016,8 @@ pipeline {
                         label 'ci_nvme5'
                     }
                     steps {
-                        functionalTest target: hw_distro_target(),
-                                       inst_repos: daos_repos(),
+                        functionalTest target: hwDistroTarget(),
+                                       inst_repos: daosRepos(),
                                        inst_rpms: functional_packages()
                    }
                     post {
@@ -1082,8 +1040,8 @@ pipeline {
                         label 'ci_nvme9'
                     }
                     steps {
-                        functionalTest target: hw_distro_target(),
-                                       inst_repos: daos_repos(),
+                        functionalTest target: hwDistroTarget(),
+                                       inst_repos: daosRepos(),
                                        inst_rpms: functional_packages()
                     }
                     post {
@@ -1107,7 +1065,7 @@ pipeline {
                         label 'ci_vm1'
                     }
                     steps {
-                        testRpm inst_repos: daos_repos(),
+                        testRpm inst_repos: daosRepos(),
                                 daos_pkg_version: daosPackagesVersion()
                    }
                 } // stage('Test CentOS 7 RPMs')
@@ -1125,7 +1083,7 @@ pipeline {
                         label 'ci_vm1'
                     }
                     steps {
-                        testRpm inst_repos: daos_repos(),
+                        testRpm inst_repos: daosRepos(),
                                 daos_pkg_version: daosPackagesVersion(),
                                 inst_rpms: 'clamav clamav-devel',
                                 test_script: 'ci/rpm/scan_daos.sh',
