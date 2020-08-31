@@ -16,37 +16,6 @@
 
 commit_pragma_cache = [:]
 
-String functional_packages() {
-    String target = hwDistroTarget()
-    return functional_packages(target)
-}
-
-String functional_packages(String distro) {
-    String pkgs = getDAOSPackages(distro)
-    pkgs += " openmpi3 hwloc ndctl fio " +
-            "ior-hpc-cart-4-daos-0 " +
-            "romio-tests-cart-4-daos-0 " +
-            "testmpio-cart-4-daos-0 " + 
-            "mpi4py-tests-cart-4-daos-0 " +
-            "hdf5-mpich2-tests-daos-0 " +
-            "hdf5-openmpi3-tests-daos-0 " +
-            "hdf5-vol-daos-mpich2-tests-daos-0 " +
-            "hdf5-vol-daos-openmpi3-tests-daos-0 " +
-            "MACSio-mpich2-daos-0 " +
-            "MACSio-openmpi3-daos-0"
-    if (quickBuild()) {
-        pkgs += " spdk_tools"
-    }
-    if (distro == "leap15") {
-        return pkgs
-    } else if (distro == "centos7") {
-        // need to exclude openmpi until we remove it from the repo
-        return  "--exclude openmpi " + pkgs
-    } else {
-        error 'functional_packages not implemented for ' + stage_info['target']
-    }
-}
-
 // Don't define this as a type or it loses it's global scope
 target_branch = env.CHANGE_TARGET ? env.CHANGE_TARGET : env.BRANCH_NAME
 def arch = ""
@@ -908,7 +877,7 @@ pipeline {
                     }
                     steps {
                         functionalTest inst_repos: daosRepos(),
-                                       inst_rpms: functional_packages()
+                                       inst_rpms: functionalPackages()
                     }
                     post {
                         always {
@@ -930,7 +899,7 @@ pipeline {
                     }
                     steps {
                         functionalTest inst_repos: daosRepos(),
-                                       inst_rpms: functional_packages()
+                                       inst_rpms: functionalPackages()
                     }
                     post {
                         always {
@@ -954,7 +923,7 @@ pipeline {
                     steps {
                         functionalTest target: hwDistroTarget(),
                                        inst_repos: daosRepos(),
-                                       inst_rpms: functional_packages()
+                                       inst_rpms: functionalPackages()
                     }
                     post {
                         always {
@@ -978,7 +947,7 @@ pipeline {
                     steps {
                         functionalTest target: hwDistroTarget(),
                                        inst_repos: daosRepos(),
-                                       inst_rpms: functional_packages()
+                                       inst_rpms: functionalPackages()
                    }
                     post {
                         always {
@@ -1002,7 +971,7 @@ pipeline {
                     steps {
                         functionalTest target: hwDistroTarget(),
                                        inst_repos: daosRepos(),
-                                       inst_rpms: functional_packages()
+                                       inst_rpms: functionalPackages()
                     }
                     post {
                         always {
