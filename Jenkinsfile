@@ -20,23 +20,6 @@ boolean quickbuild() {
     return cachedCommitPragma(pragma: 'Quick-build', cache: commit_pragma_cache) == 'true'
 }
 
-String pr_repos() {
-    Map stage_info = parseStageInfo()
-    return pr_repos(stage_info['target'])
-}
-
-String pr_repos(String distro) {
-    String repos = ""
-    if (distro == 'centos7') {
-        repos = cachedCommitPragma(pragma: 'PR-repos-el7', cache: commit_pragma_cache)
-    } else if (distro == 'leap15') {
-        repos = cachedCommitPragma(pragma: 'PR-repos-leap15', cache: commit_pragma_cache)
-    } else {
-       error 'pr_repos not implemented for ' + distro
-    }
-    return repos + ' ' + cachedCommitPragma(pragma: 'PR-repos', cache: commit_pragma_cache)
-}
-
 String daos_repo() {
     if (cachedCommitPragma(pragma: 'RPM-test-version', cache: commit_pragma_cache) == '') {
         return "daos@${env.BRANCH_NAME}:${env.BUILD_NUMBER}"
@@ -67,7 +50,7 @@ String daos_repos() {
 }
 
 String daos_repos(String distro) {
-    return pr_repos(distro) + ' ' + daos_repo()
+    return prRepos(distro) + ' ' + daos_repo()
 }
 
 String unit_packages() {
@@ -457,7 +440,7 @@ pipeline {
                                                 " -t ${sanitized_JOB_NAME}-centos7 " +
                                                 ' --build-arg QUICKBUILD_DEPS="' +
                                                   env.QUICKBUILD_DEPS_EL7 + '"' +
-                                                ' --build-arg REPOS="' + pr_repos() + '"'
+                                                ' --build-arg REPOS="' + prRepos() + '"'
                         }
                     }
                     steps {
@@ -506,7 +489,7 @@ pipeline {
                                 ' --build-arg BULLSEYE=' + env.BULLSEYE +
                                 ' --build-arg QUICKBUILD_DEPS="' +
                                   env.QUICKBUILD_DEPS_EL7 + '"' +
-                                ' --build-arg REPOS="' + pr_repos() + '"'
+                                ' --build-arg REPOS="' + prRepos() + '"'
                         }
                     }
                     steps {
@@ -552,7 +535,7 @@ pipeline {
                                                 " -t ${sanitized_JOB_NAME}-centos7 " +
                                                 ' --build-arg QUICKBUILD_DEPS="' +
                                                   env.QUICKBUILD_DEPS_EL7 + '"' +
-                                                ' --build-arg REPOS="' + pr_repos() + '"'
+                                                ' --build-arg REPOS="' + prRepos() + '"'
                         }
                     }
                     steps {
@@ -597,7 +580,7 @@ pipeline {
                                                 " -t ${sanitized_JOB_NAME}-centos7 " +
                                                 ' --build-arg QUICKBUILD_DEPS="' +
                                                   env.QUICKBUILD_DEPS_EL7 + '"' +
-                                                ' --build-arg REPOS="' + pr_repos() + '"'
+                                                ' --build-arg REPOS="' + prRepos() + '"'
                         }
                     }
                     steps {
@@ -765,7 +748,7 @@ pipeline {
                                                 " -t ${sanitized_JOB_NAME}-leap15 " +
                                                 ' --build-arg QUICKBUILD_DEPS="' +
                                                   env.QUICKBUILD_DEPS_LEAP15 + '"' +
-                                                ' --build-arg REPOS="' + pr_repos() + '"'
+                                                ' --build-arg REPOS="' + prRepos() + '"'
                         }
                     }
                     steps {
@@ -910,7 +893,7 @@ pipeline {
                     }
                     steps {
                         unitTest timeout_time: 60,
-                                 inst_repos: pr_repos(),
+                                 inst_repos: prRepos(),
                                  inst_rpms: unit_packages()
                     }
                     post {
@@ -933,7 +916,7 @@ pipeline {
                     steps {
                         unitTest timeout_time: 60,
                                  ignore_failure: true,
-                                 inst_repos: pr_repos(),
+                                 inst_repos: prRepos(),
                                  inst_rpms: unit_packages()
                     }
                     post {
@@ -977,7 +960,7 @@ pipeline {
                                                 " -t ${sanitized_JOB_NAME}-centos7 " +
                                                 ' --build-arg QUICKBUILD_DEPS="' +
                                                   env.QUICKBUILD_DEPS_EL7 + '"' +
-                                                ' --build-arg REPOS="' + pr_repos() + '"'
+                                                ' --build-arg REPOS="' + prRepos() + '"'
                         }
                     }
                     steps {
@@ -1177,7 +1160,7 @@ pipeline {
                                 ' --build-arg BULLSEYE=' + env.BULLSEYE +
                                 ' --build-arg QUICKBUILD_DEPS="' +
                                   env.QUICKBUILD_DEPS_EL7 + '"' +
-                                ' --build-arg REPOS="' + pr_repos() + '"'
+                                ' --build-arg REPOS="' + prRepos() + '"'
                         }
                     }
                     steps {
