@@ -315,56 +315,6 @@ pipeline {
                         }
                     }
                 }
-                stage('Build on CentOS 7 Bullseye') {
-                    when {
-                        beforeAgent true
-                        allOf {
-                            not { environment name: 'NO_CI_TESTING',
-                                  value: 'true' }
-                            expression { ! skipStage(stage: 'bullseye',
-                                                     def_val: true,
-                                                     cache: commit_pragma_cache) }
-                        }
-                    }
-                    agent {
-                        dockerfile {
-                            filename 'Dockerfile.centos.7'
-                            dir 'utils/docker'
-                            label 'docker_runner'
-                            additionalBuildArgs "-t ${sanitized_JOB_NAME}-centos7 " +
-                                '$BUILDARGS_QB_CHECK' +
-                                ' --build-arg BULLSEYE=' + env.BULLSEYE +
-                                ' --build-arg QUICKBUILD_DEPS="' +
-                                  env.QUICKBUILD_DEPS_EL7 + '"' +
-                                ' --build-arg REPOS="' + prRepos() + '"'
-                        }
-                    }
-                    steps {
-                        sconsBuild parallelBuild: parallelBuild(),
-                                   stash_files: 'ci/test_files_to_stash.txt'
-                    }
-                    post {
-                        always {
-                            recordIssues enabledForFailure: true,
-                                         aggregatingResults: true,
-                                         id: "analysis-covc-centos7",
-                                         tools: [ gcc4(pattern: 'centos7-covc-build.log'),
-                                                  cppCheck(pattern: 'centos7-covc-build.log') ],
-                                         filters: [ excludeFile('.*\\/_build\\.external\\/.*'),
-                                                    excludeFile('_build\\.external\\/.*') ]
-                        }
-                        success {
-                            sh "rm -rf _build.external${arch}"
-                        }
-                        unsuccessful {
-                            sh """if [ -f config${arch}.log ]; then
-                                      mv config${arch}.log config.log-centos7-covc
-                                  fi"""
-                            archiveArtifacts artifacts: 'config.log-centos7-covc',
-                                             allowEmptyArchive: true
-                        }
-                    }
-                }
                 stage('Build on CentOS 7 debug') {
                     when {
                         beforeAgent true
