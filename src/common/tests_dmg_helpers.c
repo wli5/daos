@@ -590,7 +590,7 @@ parse_device_info(struct json_object *json_pool, device_list *device_info)
 	return -DER_INVAL;
 	}
 	printf("state=%s ", json_object_to_json_string(tmp));
-	device_info->state = json_object_to_json_string(tmp);
+	strcpy(device_info->state, json_object_to_json_string(tmp));
 
 	if (!json_object_object_get_ex(json_pool, "rank", &tmp)) {
 		D_ERROR("unable to extract rank from JSON\n");
@@ -650,7 +650,7 @@ dmg_storage_device_list(const char *dmg_config_file,
 				device_length = json_object_array_length(tmp);
 				for (i = 0; i < device_length; i++) {
 					tmp1 = json_object_array_get_idx(tmp, i);
-					devices[i].host = json_object_to_json_string(hosts_list);
+					strcpy(devices[j].host, json_object_to_json_string(hosts_list));
 					parse_device_info(tmp1, &devices[j++]);
 				}
 			}

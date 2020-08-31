@@ -148,8 +148,8 @@ nvme_recov_2(void **state)
 	dmg_storage_device_list(dmg_config_file, devices);
 
 	for ( i = 0; i < 4; i++){
-		print_message("\n Rank=%d UUID=%s state=%s", devices[i].rank,
-			DP_UUID(devices[i].device_id), devices[i].state);
+		print_message("\n Rank=%d UUID=%s state=%s host=%s", devices[i].rank,
+			DP_UUID(devices[i].device_id), devices[i].state, devices[i].host);
 	}
 
 	/**
@@ -161,7 +161,6 @@ nvme_recov_2(void **state)
 	/* Teardown */
 	D_FREE(devices);
 }
-
 
 static const struct CMUnitTest nvme_recov_tests[] = {
 	{"NVMe Recovery 1: Online faulty reaction",

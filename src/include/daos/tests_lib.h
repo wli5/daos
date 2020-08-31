@@ -167,9 +167,9 @@ struct dts_context {
 
 typedef struct {
        uuid_t			device_id;
-       const char		*state;
-       int				rank;
-       const char		*host;
+       char			state[10];
+       int			rank;
+       char			host[50];
 }  device_list;
 
 /** Initialize an SGL with a variable number of IOVs and set the IOV buffers
