@@ -27,15 +27,6 @@ def cachedCommitPragma(Map config) {
 
 }
 
-def skip_stage(String stage, boolean def_val = false) {
-    String value = 'false'
-    if (def_val) {
-        value = 'true'
-    }
-    return cachedCommitPragma(pragma: 'Skip-' + stage,
-                              def_val: value) == 'true'
-}
-
 boolean quickbuild() {
     return cachedCommitPragma(pragma: 'Quick-build') == 'true'
 }
@@ -299,7 +290,7 @@ pipeline {
                     when {
                         beforeAgent true
                         allOf {
-                            expression { ! skip_stage('checkpatch') }
+                            expression { ! skipStage(stage: 'checkpatch') }
                             expression { ! docOnlyChange() }
                         }
                     }
@@ -392,7 +383,7 @@ pipeline {
                     // always having RPMs in it
                     branch target_branch
                     allOf {
-                        expression { ! skip_stage('build') }
+                        expression { ! skipStage(stage: 'build') }
                         expression { ! docOnlyChange() }
                         expression { cachedCommitPragma(pragma: 'RPM-test-version') == '' }
                     }
@@ -437,7 +428,7 @@ pipeline {
                             not { branch 'weekly-testing' }
                             not { environment name: 'CHANGE_TARGET',
                                               value: 'weekly-testing' }
-                            expression { ! skip_stage('build-leap15-rpm') }
+                            expression { ! skipStage(stage: 'build-leap15-rpm') }
                         }
                     }
                     agent {
@@ -478,7 +469,7 @@ pipeline {
                             not { branch 'weekly-testing' }
                             not { environment name: 'CHANGE_TARGET',
                                               value: 'weekly-testing' }
-                            expression { ! skip_stage('build-ubuntu.20.04') }
+                            expression { ! skipStage(stage: 'build-ubuntu.20.04') }
                         }
                     }
                     agent {
@@ -516,7 +507,7 @@ pipeline {
                     when {
                         beforeAgent true
                         allOf {
-                            expression { ! skip_stage('build-centos7-gcc') }
+                            expression { ! skipStage(stage: 'build-centos7-gcc') }
                         }
                     }
                     agent {
@@ -563,7 +554,8 @@ pipeline {
                         allOf {
                             not { environment name: 'NO_CI_TESTING',
                                   value: 'true' }
-                            expression { ! skip_stage('bullseye', true) }
+                            expression { ! skipStage(stage: 'bullseye',
+                                                     def_val: true) }
                         }
                     }
                     agent {
@@ -609,7 +601,7 @@ pipeline {
                     when {
                         beforeAgent true
                         allOf {
-                            expression { ! skip_stage('build-centos7-gcc-debug') }
+                            expression { ! skipStage(stage: 'build-centos7-gcc-debug') }
                             expression { ! quickbuild() }
                         }
                     }
@@ -654,7 +646,7 @@ pipeline {
                     when {
                         beforeAgent true
                         allOf {
-                            expression { ! skip_stage('build-centos7-gcc-release') }
+                            expression { ! skipStage(stage: 'build-centos7-gcc-release') }
                             expression { ! quickbuild() }
                         }
                     }
@@ -788,7 +780,7 @@ pipeline {
                             not { branch 'weekly-testing' }
                             not { environment name: 'CHANGE_TARGET', value: 'weekly-testing' }
                             expression { ! quickbuild() }
-                            expression { ! skip_stage('build-ubuntu-clang') }
+                            expression { ! skipStage(stage: 'build-ubuntu-clang') }
                         }
                     }
                     agent {
@@ -913,7 +905,7 @@ pipeline {
                             not { branch 'weekly-testing' }
                             not { environment name: 'CHANGE_TARGET', value: 'weekly-testing' }
                             expression { ! quickbuild() }
-                            expression { ! skip_stage('build-leap15-icc') }
+                            expression { ! skipStage(stage: 'build-leap15-icc') }
                         }
                     }
                     agent {
@@ -959,10 +951,10 @@ pipeline {
                 allOf {
                     not { environment name: 'NO_CI_TESTING', value: 'true' }
                     // nothing to test if build was skipped
-                    expression { ! skip_stage('build') }
+                    expression { ! skipStage(stage: 'build') }
                     // or it's a doc-only change
                     expression { ! docOnlyChange() }
-                    expression { ! skip_stage('test') }
+                    expression { ! skipStage(stage: 'test') }
                     expression { cachedCommitPragma(pragma: 'RPM-test-version') == '' }
                 }
             }
@@ -971,8 +963,8 @@ pipeline {
                     when {
                       beforeAgent true
                       allOf {
-                          expression { ! skip_stage('unit-test')}
-                          expression { ! skip_stage('run_test') }
+                          expression { ! skipStage(stage: 'unit-test') }
+                          expression { ! skipStage(stage: 'run_test') }
                       }
                     }
                     agent {
@@ -994,7 +986,8 @@ pipeline {
                 stage('Unit Test Bullseye') {
                     when {
                       beforeAgent true
-                      expression { ! skip_stage('bullseye', true) }
+                      expression { ! skipStage(stage: 'bullseye',
+                                               def_val: true) }
                     }
                     agent {
                         label 'ci_vm1'
@@ -1025,17 +1018,17 @@ pipeline {
                 allOf {
                     not { environment name: 'NO_CI_TESTING', value: 'true' }
                     // nothing to test if build was skipped
-                    expression { ! skip_stage('build') }
+                    expression { ! skipStage(stage: 'build') }
                     // or it's a doc-only change
                     expression { ! docOnlyChange() }
-                    expression { ! skip_stage('test') }
+                    expression { ! skipStage(stage: 'test') }
                 }
             }
             parallel {
                 stage('Coverity on CentOS 7') {
                     when {
                         beforeAgent true
-                        expression { ! skip_stage('coverity-test') }
+                        expression { ! skipStage(stage: 'coverity-test') }
                     }
                     agent {
                         dockerfile {
@@ -1066,9 +1059,9 @@ pipeline {
                     when {
                         beforeAgent true
                         allOf {
-                            expression { ! skip_stage('func-test') }
-                            expression { ! skip_stage('func-test-vm') }
-                            expression { ! skip_stage('func-test-el7')}
+                            expression { ! skipStage(stage: 'func-test') }
+                            expression { ! skipStage(stage: 'func-test-vm') }
+                            expression { ! skipStage(stage: 'func-test-el7') }
                         }
                     }
                     agent {
@@ -1088,9 +1081,9 @@ pipeline {
                     when {
                         beforeAgent true
                         allOf {
-                            expression { ! skip_stage('func-test') }
-                            expression { ! skip_stage('func-test-vm') }
-                            expression { ! skip_stage('func-test-leap15') }
+                            expression { ! skipStage(stage: 'func-test') }
+                            expression { ! skipStage(stage: 'func-test-vm') }
+                            expression { ! skipStage(stage: 'func-test-leap15') }
                         }
                     }
                     agent {
@@ -1111,8 +1104,8 @@ pipeline {
                         beforeAgent true
                         allOf {
                             not { environment name: 'DAOS_STACK_CI_HARDWARE_SKIP', value: 'true' }
-                            expression { ! skip_stage('func-hw-test') }
-                            expression { ! skip_stage('func-hw-test-small') }
+                            expression { ! skipStage(stage: 'func-hw-test') }
+                            expression { ! skipStage(stage: 'func-hw-test-small') }
                         }
                     }
                     agent {
@@ -1135,8 +1128,8 @@ pipeline {
                         beforeAgent true
                         allOf {
                             not { environment name: 'DAOS_STACK_CI_HARDWARE_SKIP', value: 'true' }
-                            expression { ! skip_stage('func-hw-test') }
-                            expression { ! skip_stage('func-hw-test-medium') }
+                            expression { ! skipStage(stage: 'func-hw-test') }
+                            expression { ! skipStage(stage: 'func-hw-test-medium') }
                         }
                     }
                     agent {
@@ -1159,8 +1152,8 @@ pipeline {
                         beforeAgent true
                         allOf {
                             not { environment name: 'DAOS_STACK_CI_HARDWARE_SKIP', value: 'true' }
-                            expression { ! skip_stage('func-hw-test') }
-                            expression { ! skip_stage('func-hw-test-large') }
+                            expression { ! skipStage(stage: 'func-hw-test') }
+                            expression { ! skipStage(stage: 'func-hw-test-large') }
                         }
                     }
                     agent {
@@ -1185,8 +1178,8 @@ pipeline {
                             not { branch 'weekly-testing' }
                             not { environment name: 'CHANGE_TARGET',
                                               value: 'weekly-testing' }
-                            expression { ! skip_stage('test') }
-                            expression { ! skip_stage('test-centos-rpms') }
+                            expression { ! skipStage(stage: 'test') }
+                            expression { ! skipStage(stage: 'test-centos-rpms') }
                         }
                     }
                     agent {
@@ -1204,7 +1197,7 @@ pipeline {
                             not { branch 'weekly-testing' }
                             not { environment name: 'CHANGE_TARGET',
                                               value: 'weekly-testing' }
-                            expression { ! skip_stage('scan-centos-rpms') }
+                            expression { ! skipStage(stage: 'scan-centos-rpms') }
                         }
                     }
                     agent {
@@ -1232,7 +1225,8 @@ pipeline {
                       beforeAgent true
                       allOf {
                         expression { ! env.BULLSEYE != null }
-                        expression { ! skip_stage('bullseye', true) }
+                        expression { ! skipStage(stage: 'bullseye',
+                                                 def_val: true) }
                       }
                     }
                     agent {
