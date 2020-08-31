@@ -15,20 +15,9 @@
 @Library(value="pipeline-lib@bmurrell/build-leap-on-15.2-and-ubuntu-20.04") _
 
 commit_pragma_cache = [:]
-def cachedCommitPragma(Map config) {
-
-    if (commit_pragma_cache[config['pragma']]) {
-        return commit_pragma_cache[config['pragma']]
-    }
-
-    commit_pragma_cache[config['pragma']] = commitPragma(config)
-
-    return commit_pragma_cache[config['pragma']]
-
-}
 
 boolean quickbuild() {
-    return cachedCommitPragma(pragma: 'Quick-build') == 'true'
+    return cachedCommitPragma(pragma: 'Quick-build', cache: commit_pragma_cache) == 'true'
 }
 
 String get_daos_packages() {
@@ -56,17 +45,17 @@ String pr_repos() {
 String pr_repos(String distro) {
     String repos = ""
     if (distro == 'centos7') {
-        repos = cachedCommitPragma(pragma: 'PR-repos-el7')
+        repos = cachedCommitPragma(pragma: 'PR-repos-el7', cache: commit_pragma_cache)
     } else if (distro == 'leap15') {
-        repos = cachedCommitPragma(pragma: 'PR-repos-leap15')
+        repos = cachedCommitPragma(pragma: 'PR-repos-leap15', cache: commit_pragma_cache)
     } else {
        error 'pr_repos not implemented for ' + distro
     }
-    return repos + ' ' + cachedCommitPragma(pragma: 'PR-repos')
+    return repos + ' ' + cachedCommitPragma(pragma: 'PR-repos', cache: commit_pragma_cache)
 }
 
 String daos_repo() {
-    if (cachedCommitPragma(pragma: 'RPM-test-version') == '') {
+    if (cachedCommitPragma(pragma: 'RPM-test-version', cache: commit_pragma_cache) == '') {
         return "daos@${env.BRANCH_NAME}:${env.BUILD_NUMBER}"
     } else {
         return ""
@@ -130,7 +119,7 @@ String daos_packages_version() {
 String daos_packages_version(String distro) {
     // commit pragma has highest priority
     // TODO: this should actually be determined from the PR-repos artifacts
-    String version = cachedCommitPragma(pragma: 'RPM-test-version')
+    String version = cachedCommitPragma(pragma: 'RPM-test-version', cache: commit_pragma_cache)
     if (version != "") {
         String dist
         if (distro == "centos7") {
@@ -154,7 +143,7 @@ String daos_packages_version(String distro) {
 boolean parallel_build() {
     // defaults to false
     // true if Quick-build: true unless Parallel-build: false
-    def pb = cachedCommitPragma(pragma: 'Parallel-build')
+    def pb = cachedCommitPragma(pragma: 'Parallel-build', cache: commit_pragma_cache)
     if (pb == "true" ||
         (quickbuild() && pb != "false")) {
         return true
@@ -169,7 +158,7 @@ String hw_distro(String size) {
     //'centos7
     return cachedCommitPragma(pragma: 'Func-hw-test-' + size + '-distro',
                               def_val: cachedCommitPragma(pragma: 'Func-hw-test-distro',
-                                                          def_val: 'centos7'))
+                                                          def_val: 'centos7', cache: commit_pragma_cache), cache: commit_pragma_cache)
 }
 
 String functional_packages() {
@@ -255,7 +244,7 @@ pipeline {
                                             "--requires utils/rpms/daos.spec " +
                                             "2>/dev/null",
                                     returnStdout: true
-        TEST_RPMS = cachedCommitPragma(pragma: 'RPM-test', def_val: 'true')
+        TEST_RPMS = cachedCommitPragma(pragma: 'RPM-test', def_val: 'true', cache: commit_pragma_cache)
     }
 
     options {
@@ -339,7 +328,8 @@ pipeline {
                       beforeAgent true
                       expression {
                           cachedCommitPragma(pragma: 'Skip-python-bandit',
-                                             def_val: 'true') != 'true'
+                                             def_val: 'true',
+                                             cache: commit_pragma_cache) != 'true'
                       }
                     }
                     agent {
@@ -379,7 +369,7 @@ pipeline {
                     allOf {
                         expression { ! skipStage(stage: 'build') }
                         expression { ! docOnlyChange() }
-                        expression { cachedCommitPragma(pragma: 'RPM-test-version') == '' }
+                        expression { cachedCommitPragma(pragma: 'RPM-test-version', cache: commit_pragma_cache) == '' }
                     }
                 }
             }
@@ -949,7 +939,7 @@ pipeline {
                     // or it's a doc-only change
                     expression { ! docOnlyChange() }
                     expression { ! skipStage(stage: 'test') }
-                    expression { cachedCommitPragma(pragma: 'RPM-test-version') == '' }
+                    expression { cachedCommitPragma(pragma: 'RPM-test-version', cache: commit_pragma_cache) == '' }
                 }
             }
             parallel {
