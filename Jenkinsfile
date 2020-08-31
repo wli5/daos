@@ -31,12 +31,6 @@ boolean quickbuild() {
     return cachedCommitPragma(pragma: 'Quick-build') == 'true'
 }
 
-def functional_post_always() {
-   return sh(label: "Job Cleanup",
-             script: 'ci/functional/job_cleanup.sh',
-             returnStatus: true)
-}
-
 String get_daos_packages() {
     Map stage_info = parseStageInfo()
     return get_daos_packages(stage_info['target'])
