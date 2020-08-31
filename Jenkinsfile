@@ -16,46 +16,6 @@
 
 commit_pragma_cache = [:]
 
-boolean quickbuild() {
-    return cachedCommitPragma(pragma: 'Quick-build', cache: commit_pragma_cache) == 'true'
-}
-
-String unit_packages() {
-    Map stage_info = parseStageInfo()
-    if (stage_info['target'] == 'centos7') {
-        String packages =  'gotestsum openmpi3 ' +
-                           'hwloc-devel argobots ' +
-                           'fuse3-libs fuse3 ' +
-                           'boost-devel ' +
-                           'libisa-l-devel libpmem ' +
-                           'libpmemobj protobuf-c ' +
-                           'spdk-devel libfabric-devel '+
-                           'pmix numactl-devel ' +
-                           'libipmctl-devel ' +
-                           'python36-tabulate '
-        if (quickbuild()) {
-            // TODO: these should be gotten from the Requires: of RPM
-            packages += " spdk-tools mercury-2.0.0~rc1" +
-                        " boost-devel libisa-l_crypto libfabric-debuginfo"
-        }
-        return packages
-    } else {
-        error 'unit packages not implemented for ' + stage_info['target']
-    }
-}
-
-boolean parallel_build() {
-    // defaults to false
-    // true if Quick-build: true unless Parallel-build: false
-    def pb = cachedCommitPragma(pragma: 'Parallel-build', cache: commit_pragma_cache)
-    if (pb == "true" ||
-        (quickbuild() && pb != "false")) {
-        return true
-    }
-
-    return false
-}
-
 String functional_packages() {
     String target = hwDistroTarget()
     return functional_packages(target)
@@ -74,7 +34,7 @@ String functional_packages(String distro) {
             "hdf5-vol-daos-openmpi3-tests-daos-0 " +
             "MACSio-mpich2-daos-0 " +
             "MACSio-openmpi3-daos-0"
-    if (quickbuild()) {
+    if (quickBuild()) {
         pkgs += " spdk_tools"
     }
     if (distro == "leap15") {
@@ -394,7 +354,7 @@ pipeline {
                             filename 'Dockerfile.centos.7'
                             dir 'utils/docker'
                             label 'docker_runner'
-                            additionalBuildArgs dockerBuildArgs(qb: quickbuild()) +
+                            additionalBuildArgs dockerBuildArgs(qb: quickBuild()) +
                                                 " -t ${sanitized_JOB_NAME}-centos7 " +
                                                 ' --build-arg QUICKBUILD_DEPS="' +
                                                   env.QUICKBUILD_DEPS_EL7 + '"' +
@@ -402,7 +362,7 @@ pipeline {
                         }
                     }
                     steps {
-                        sconsBuild parallel_build: parallel_build(),
+                        sconsBuild parallelBuild: parallelBuild(),
                                    stash_files: 'ci/test_files_to_stash.txt'
                     }
                     post {
@@ -451,7 +411,7 @@ pipeline {
                         }
                     }
                     steps {
-                        sconsBuild parallel_build: parallel_build(),
+                        sconsBuild parallelBuild: parallelBuild(),
                                    stash_files: 'ci/test_files_to_stash.txt'
                     }
                     post {
@@ -481,7 +441,7 @@ pipeline {
                         beforeAgent true
                         allOf {
                             expression { ! skipStage(stage: 'build-centos7-gcc-debug') }
-                            expression { ! quickbuild() }
+                            expression { ! quickBuild() }
                         }
                     }
                     agent {
@@ -489,7 +449,7 @@ pipeline {
                             filename 'Dockerfile.centos.7'
                             dir 'utils/docker'
                             label 'docker_runner'
-                            additionalBuildArgs dockerBuildArgs(qb: quickbuild()) +
+                            additionalBuildArgs dockerBuildArgs(qb: quickBuild()) +
                                                 " -t ${sanitized_JOB_NAME}-centos7 " +
                                                 ' --build-arg QUICKBUILD_DEPS="' +
                                                   env.QUICKBUILD_DEPS_EL7 + '"' +
@@ -497,7 +457,7 @@ pipeline {
                         }
                     }
                     steps {
-                        sconsBuild parallel_build: parallel_build()
+                        sconsBuild parallelBuild: parallelBuild()
                     }
                     post {
                         always {
@@ -526,7 +486,7 @@ pipeline {
                         beforeAgent true
                         allOf {
                             expression { ! skipStage(stage: 'build-centos7-gcc-release') }
-                            expression { ! quickbuild() }
+                            expression { ! quickBuild() }
                         }
                     }
                     agent {
@@ -534,7 +494,7 @@ pipeline {
                             filename 'Dockerfile.centos.7'
                             dir 'utils/docker'
                             label 'docker_runner'
-                            additionalBuildArgs dockerBuildArgs(qb: quickbuild()) +
+                            additionalBuildArgs dockerBuildArgs(qb: quickBuild()) +
                                                 " -t ${sanitized_JOB_NAME}-centos7 " +
                                                 ' --build-arg QUICKBUILD_DEPS="' +
                                                   env.QUICKBUILD_DEPS_EL7 + '"' +
@@ -542,7 +502,7 @@ pipeline {
                         }
                     }
                     steps {
-                        sconsBuild parallel_build: parallel_build()
+                        sconsBuild parallelBuild: parallelBuild()
                     }
                     post {
                         always {
@@ -571,7 +531,7 @@ pipeline {
                         beforeAgent true
                         allOf {
                             branch target_branch
-                            expression { ! quickbuild() }
+                            expression { ! quickBuild() }
                         }
                     }
                     agent {
@@ -579,14 +539,14 @@ pipeline {
                             filename 'Dockerfile.centos.7'
                             dir 'utils/docker'
                             label 'docker_runner'
-                            additionalBuildArgs dockerBuildArgs(qb: quickbuild()) +
+                            additionalBuildArgs dockerBuildArgs(qb: quickBuild()) +
                                                 " -t ${sanitized_JOB_NAME}-centos7 " +
                                                 ' --build-arg QUICKBUILD_DEPS="' +
                                                   env.QUICKBUILD_DEPS_EL7 + '"'
                         }
                     }
                     steps {
-                        sconsBuild parallel_build: parallel_build()
+                        sconsBuild parallelBuild: parallelBuild()
                     }
                     post {
                         always {
@@ -615,7 +575,7 @@ pipeline {
                         beforeAgent true
                         allOf {
                             branch target_branch
-                            expression { ! quickbuild() }
+                            expression { ! quickBuild() }
                         }
                     }
                     agent {
@@ -628,7 +588,7 @@ pipeline {
                         }
                     }
                     steps {
-                        sconsBuild parallel_build: parallel_build()
+                        sconsBuild parallelBuild: parallelBuild()
                     }
                     post {
                         always {
@@ -658,7 +618,7 @@ pipeline {
                         allOf {
                             not { branch 'weekly-testing' }
                             not { environment name: 'CHANGE_TARGET', value: 'weekly-testing' }
-                            expression { ! quickbuild() }
+                            expression { ! quickBuild() }
                             expression { ! skipStage(stage: 'build-ubuntu-clang') }
                         }
                     }
@@ -672,7 +632,7 @@ pipeline {
                         }
                     }
                     steps {
-                        sconsBuild parallel_build: parallel_build()
+                        sconsBuild parallelBuild: parallelBuild()
                     }
                     post {
                         always {
@@ -702,7 +662,7 @@ pipeline {
                             filename 'Dockerfile.leap.15'
                             dir 'utils/docker'
                             label 'docker_runner'
-                            additionalBuildArgs dockerBuildArgs(qb: quickbuild()) +
+                            additionalBuildArgs dockerBuildArgs(qb: quickBuild()) +
                                                 " -t ${sanitized_JOB_NAME}-leap15 " +
                                                 ' --build-arg QUICKBUILD_DEPS="' +
                                                   env.QUICKBUILD_DEPS_LEAP15 + '"' +
@@ -710,7 +670,7 @@ pipeline {
                         }
                     }
                     steps {
-                        sconsBuild parallel_build: parallel_build(),
+                        sconsBuild parallelBuild: parallelBuild(),
                                    stash_files: 'ci/test_files_to_stash.txt'
                     }
                     post {
@@ -740,7 +700,7 @@ pipeline {
                         beforeAgent true
                         allOf {
                             branch target_branch
-                            expression { ! quickbuild() }
+                            expression { ! quickBuild() }
                         }
                     }
                     agent {
@@ -753,7 +713,7 @@ pipeline {
                         }
                     }
                     steps {
-                        sconsBuild parallel_build: parallel_build()
+                        sconsBuild parallelBuild: parallelBuild()
                     }
                     post {
                         always {
@@ -783,7 +743,7 @@ pipeline {
                         allOf {
                             not { branch 'weekly-testing' }
                             not { environment name: 'CHANGE_TARGET', value: 'weekly-testing' }
-                            expression { ! quickbuild() }
+                            expression { ! quickBuild() }
                             expression { ! skipStage(stage: 'build-leap15-icc') }
                         }
                     }
@@ -798,7 +758,7 @@ pipeline {
                         }
                     }
                     steps {
-                        sconsBuild parallel_build: parallel_build()
+                        sconsBuild parallelBuild: parallelBuild()
                     }
                     post {
                         always {
@@ -852,7 +812,7 @@ pipeline {
                     steps {
                         unitTest timeout_time: 60,
                                  inst_repos: prRepos(),
-                                 inst_rpms: unit_packages()
+                                 inst_rpms: unitPackages()
                     }
                     post {
                       always {
@@ -875,7 +835,7 @@ pipeline {
                         unitTest timeout_time: 60,
                                  ignore_failure: true,
                                  inst_repos: prRepos(),
-                                 inst_rpms: unit_packages()
+                                 inst_rpms: unitPackages()
                     }
                     post {
                         always {
@@ -923,7 +883,7 @@ pipeline {
                     }
                     steps {
                         sconsBuild coverity: "daos-stack/daos",
-                                   parallel_build: parallel_build()
+                                   parallelBuild: parallelBuild()
                     }
                     post {
                         success {
