@@ -166,7 +166,6 @@ def load_mpi(mpi):
     """global function to load MPI into os.environ"""
     # On Ubuntu, MPI stacks use alternatives and need root to change their
     # pointer, so just verify that the desired MPI is laoded
-    print("distro.id: %s" % distro.id())
     if distro.id() == "ubuntu":
         try:
             proc = Popen(['update-alternatives','--query', 'mpi'], stdout=PIPE)
@@ -177,10 +176,8 @@ def load_mpi(mpi):
         for line in proc.stdout.readlines():
             if line.startswith(b"Value:"):
                 if line[line.rfind(b".")+1:-1].decode() == mpi:
-                    print("%s == %s" %(line[line.rfind(b".")+1:-1].decode(), mpi))
                     return True
                 else:
-                    print("%s != %s" %(line[line.rfind(b".")+1:-1].decode(), mpi))
                     return False
         return False
 
