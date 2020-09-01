@@ -1,9 +1,6 @@
 #!/bin/bash
 
 post_provision_config_nodes() {
-    echo "Don't know what to do yet"
-    return
-
     # should we port this to Ubuntu or just consider $CONFIG_POWER_ONLY dead?
     #local yum_repo_args="--disablerepo=*"
     #yum_repo_args+=" --enablerepo=repo.dc.hpdd.intel.com_repository_*"
