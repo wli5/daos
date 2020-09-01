@@ -19,12 +19,14 @@ container:
 ior:
     client_processes:
         np: 1
-    test_file: /testFile
+    test_file: testFile
     dcp_basics:
         flags_write:
             - "-v -w -k"
         flags_read:
-            - "-v -r -R -k"
+            - "-v -r -R"
     block_size: '1K'
     transfer_size: '1K'
     signature: 5
+datamover:
+    processes: 1
