@@ -786,7 +786,7 @@ pipeline {
                         label 'ci_vm9'
                     }
                     steps {
-                        functionalTest inst_repos: daosRepos(),
+                        functionalTest inst_repos: daosRepos(commit_pragma_cache),
                                        inst_rpms: functionalPackages()
                     }
                     post {
@@ -808,7 +808,7 @@ pipeline {
                         label 'ci_vm9'
                     }
                     steps {
-                        functionalTest inst_repos: daosRepos(),
+                        functionalTest inst_repos: daosRepos(commit_pragma_cache),
                                        inst_rpms: functionalPackages()
                     }
                     post {
@@ -830,7 +830,7 @@ pipeline {
                         label 'ci_vm9'
                     }
                     steps {
-                        functionalTest inst_repos: daosRepos(),
+                        functionalTest inst_repos: daosRepos(commit_pragma_cache),
                                        inst_rpms: functionalPackages()
                     }
                     post {
@@ -850,11 +850,11 @@ pipeline {
                     }
                     agent {
                         // 2 node cluster with 1 IB/node + 1 test control node
-                        label 'ci_nvme3'
+                        label 'stage_nvme3'
                     }
                     steps {
                         functionalTest target: hwDistroTarget(commit_pragma_cache),
-                                       inst_repos: daosRepos(),
+                                       inst_repos: daosRepos(commit_pragma_cache),
                                        inst_rpms: functionalPackages()
                     }
                     post {
@@ -878,7 +878,7 @@ pipeline {
                     }
                     steps {
                         functionalTest target: hwDistroTarget(commit_pragma_cache),
-                                       inst_repos: daosRepos(),
+                                       inst_repos: daosRepos(commit_pragma_cache),
                                        inst_rpms: functionalPackages()
                    }
                     post {
@@ -902,7 +902,7 @@ pipeline {
                     }
                     steps {
                         functionalTest target: hwDistroTarget(commit_pragma_cache),
-                                       inst_repos: daosRepos(),
+                                       inst_repos: daosRepos(commit_pragma_cache),
                                        inst_rpms: functionalPackages()
                     }
                     post {
@@ -926,7 +926,7 @@ pipeline {
                         label 'ci_vm1'
                     }
                     steps {
-                        testRpm inst_repos: daosRepos(),
+                        testRpm inst_repos: daosRepos(commit_pragma_cache),
                                 daos_pkg_version: daosPackagesVersion(commit_pragma_cache)
                    }
                 } // stage('Test CentOS 7 RPMs')
@@ -944,7 +944,7 @@ pipeline {
                         label 'ci_vm1'
                     }
                     steps {
-                        testRpm inst_repos: daosRepos(),
+                        testRpm inst_repos: daosRepos(commit_pragma_cache),
                                 daos_pkg_version: daosPackagesVersion(commit_pragma_cache),
                                 inst_rpms: 'clamav clamav-devel',
                                 test_script: 'ci/rpm/scan_daos.sh',
