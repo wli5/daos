@@ -18,7 +18,6 @@ commit_pragma_cache = [:]
 
 // Don't define this as a type or it loses it's global scope
 target_branch = env.CHANGE_TARGET ? env.CHANGE_TARGET : env.BRANCH_NAME
-def arch = ""
 def sanitized_JOB_NAME = JOB_NAME.toLowerCase().replaceAll('/', '-').replaceAll('%2f', '-')
 
 // bail out of branch builds that are not on a whitelist
@@ -304,11 +303,11 @@ pipeline {
                                                     excludeFile('_build\\.external\\/.*') ]
                         }
                         success {
-                            sh "rm -rf _build.external${arch}"
+                            sh "rm -rf _build.external"
                         }
                         unsuccessful {
-                            sh """if [ -f config${arch}.log ]; then
-                                      mv config${arch}.log config.log-centos7-gcc
+                            sh """if [ -f config.log ]; then
+                                      mv config.log config.log-centos7-gcc
                                   fi"""
                             archiveArtifacts artifacts: 'config.log-centos7-gcc',
                                              allowEmptyArchive: true
@@ -349,11 +348,11 @@ pipeline {
                                                    excludeFile('_build\\.external\\/.*') ]
                         }
                         success {
-                            sh "rm -rf _build.external${arch}"
+                            sh "rm -rf _build.external"
                         }
                         unsuccessful {
-                            sh """if [ -f config${arch}.log ]; then
-                                      mv config${arch}.log config.log-centos7-gcc-debug
+                            sh """if [ -f config.log ]; then
+                                      mv config.log config.log-centos7-gcc-debug
                                   fi"""
                             archiveArtifacts artifacts: 'config.log-centos7-gcc-debug',
                                              allowEmptyArchive: true
@@ -394,11 +393,11 @@ pipeline {
                                                    excludeFile('_build\\.external\\/.*')]
                         }
                         success {
-                            sh "rm -rf _build.external${arch}"
+                            sh "rm -rf _build.external"
                         }
                         unsuccessful {
-                            sh """if [ -f config${arch}.log ]; then
-                                      mv config${arch}.log config.log-centos7-gcc-release
+                            sh """if [ -f config.log ]; then
+                                      mv config.log config.log-centos7-gcc-release
                                   fi"""
                             archiveArtifacts artifacts: 'config.log-centos7-gcc-release',
                                              allowEmptyArchive: true
@@ -438,11 +437,11 @@ pipeline {
                                                     excludeFile('_build\\.external\\/.*') ]
                         }
                         success {
-                            sh "rm -rf _build.external${arch}"
+                            sh "rm -rf _build.external"
                         }
                         unsuccessful {
-                            sh """if [ -f config${arch}.log ]; then
-                                      mv config${arch}.log config.log-centos7-clang
+                            sh """if [ -f config.log ]; then
+                                      mv config.log config.log-centos7-clang
                                   fi"""
                             archiveArtifacts artifacts: 'config.log-centos7-clang',
                                              allowEmptyArchive: true
@@ -480,11 +479,11 @@ pipeline {
                                                     excludeFile('_build\\.external\\/.*') ]
                         }
                         success {
-                            sh "rm -rf _build.external${arch}"
+                            sh "rm -rf _build.external"
                         }
                         unsuccessful {
-                            sh """if [ -f config${arch}.log ]; then
-                                      mv config${arch}.log config.log-ubuntu20.04-gcc
+                            sh """if [ -f config.log ]; then
+                                      mv config.log config.log-ubuntu20.04-gcc
                                   fi"""
                             archiveArtifacts artifacts: 'config.log-ubuntu20.04-gcc',
                                              allowEmptyArchive: true
@@ -524,11 +523,11 @@ pipeline {
                                                     excludeFile('_build\\.external\\/.*') ]
                         }
                         success {
-                            sh "rm -rf _build.external${arch}"
+                            sh "rm -rf _build.external"
                         }
                         unsuccessful {
-                            sh """if [ -f config${arch}.log ]; then
-                                      mv config${arch}.log config.log-ubuntu20.04-clang
+                            sh """if [ -f config.log ]; then
+                                      mv config.log config.log-ubuntu20.04-clang
                                   fi"""
                             archiveArtifacts artifacts: 'config.log-ubuntu20.04-clang',
                                              allowEmptyArchive: true
@@ -563,11 +562,11 @@ pipeline {
                                                     excludeFile('_build\\.external\\/.*') ]
                         }
                         success {
-                            sh "rm -rf _build.external${arch}"
+                            sh "rm -rf _build.external"
                         }
                         unsuccessful {
-                            sh """if [ -f config${arch}.log ]; then
-                                      mv config${arch}.log config.log-leap15-gcc
+                            sh """if [ -f config.log ]; then
+                                      mv config.log config.log-leap15-gcc
                                   fi"""
                             archiveArtifacts artifacts: 'config.log-leap15-gcc',
                                              allowEmptyArchive: true
@@ -605,11 +604,11 @@ pipeline {
                                                     excludeFile('_build\\.external\\/.*') ]
                         }
                         success {
-                            sh "rm -rf _build.external${arch}"
+                            sh "rm -rf _build.external"
                         }
                         unsuccessful {
-                            sh """if [ -f config${arch}.log ]; then
-                                      mv config${arch}.log config.log-leap15-clang
+                            sh """if [ -f config.log ]; then
+                                      mv config.log config.log-leap15-clang
                                   fi"""
                             archiveArtifacts artifacts: 'config.log-leap15-clang',
                                              allowEmptyArchive: true
@@ -650,11 +649,11 @@ pipeline {
                                                     excludeFile('_build\\.external\\/.*') ]
                         }
                         success {
-                            sh "rm -rf _build.external${arch}"
+                            sh "rm -rf _build.external"
                         }
                         unsuccessful {
-                            sh """if [ -f config${arch}.log ]; then
-                                      mv config${arch}.log config.log-leap15-intelc
+                            sh """if [ -f config.log ]; then
+                                      mv config.log config.log-leap15-intelc
                                   fi"""
                             archiveArtifacts artifacts: 'config.log-leap15-intelc',
                                              allowEmptyArchive: true
