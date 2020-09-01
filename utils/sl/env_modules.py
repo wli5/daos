@@ -176,11 +176,11 @@ def load_mpi(mpi):
                 return False
         for line in proc.stdout.readlines():
             if line.startswith(b"Value:"):
-                if line[line.rfind(b".")+1:-1] == mpi:
-                    print("%s == %s" %(line[line.rfind(b".")+1:-1], mpi))
+                if line[line.rfind(b".")+1:-1].decode() == mpi:
+                    print("%s == %s" %(line[line.rfind(b".")+1:-1].decode(), mpi))
                     return True
                 else:
-                    print("%s != %s" %(line[line.rfind(b".")+1:-1], mpi))
+                    print("%s != %s" %(line[line.rfind(b".")+1:-1].decode(), mpi))
                     return False
         return False
 
