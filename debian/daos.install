@@ -20,3 +20,4 @@ usr/lib64/daos_srv/libplacement.so
 # Certificate generation files
 usr/lib64/daos/certgen/*
 usr/lib64/daos/VERSION
+usr/etc/bash_completion.d/daos.bash
