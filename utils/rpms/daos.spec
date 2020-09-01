@@ -57,12 +57,14 @@ BuildRequires: libcmocka-devel
 BuildRequires: readline-devel
 BuildRequires: valgrind-devel
 BuildRequires: systemd
+BuildRequires: python-devel
+BuildRequires: python3-distro
 %if (0%{?rhel} >= 7)
 BuildRequires: numactl-devel
 BuildRequires: CUnit-devel
 BuildRequires: golang-bin >= 1.12
 BuildRequires: libipmctl-devel
-BuildRequires: python-devel python36-devel
+BuildRequires: python36-devel
 BuildRequires: Lmod
 %else
 %if (0%{?suse_version} >= 1315)
@@ -78,7 +80,7 @@ BuildRequires: libnuma-devel
 BuildRequires: cunit-devel
 BuildRequires: go >= 1.12
 BuildRequires: ipmctl-devel
-BuildRequires: python-devel python3-devel
+BuildRequires: python3-devel
 BuildRequires: lua-lmod
 BuildRequires: systemd-rpm-macros
 %if 0%{?is_opensuse}
