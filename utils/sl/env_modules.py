@@ -175,10 +175,12 @@ def load_mpi(mpi):
             if error.errno == errno.ENOENT:
                 return False
         for line in proc.stdout.readlines():
-            if line.startswith("Value:"):
-                if line[line.rfind(".")+1:-1] == mpi:
+            if line.startswith(b"Value:"):
+                if line[line.rfind(b".")+1:-1] == mpi:
+                    print("%s == %s" %(line[line.rfind(b".")+1:-1], mpi))
                     return True
                 else:
+                    print("%s != %s" %(line[line.rfind(b".")+1:-1], mpi))
                     return False
         return False
 
