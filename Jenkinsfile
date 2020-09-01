@@ -817,6 +817,28 @@ pipeline {
                         }
                     } // post
                 } // stage('Functional on Leap 15')
+                stage('Functional on Ubuntu 20.04') {
+                    when {
+                        beforeAgent true
+                        allOf {
+                            expression { ! skipStage(stage: 'func-test', cache: commit_pragma_cache) }
+                            expression { ! skipStage(stage: 'func-test-vm', cache: commit_pragma_cache) }
+                            expression { ! skipStage(stage: 'func-test-ubumtu20', cache: commit_pragma_cache) }
+                        }
+                    }
+                    agent {
+                        label 'ci_vm9'
+                    }
+                    steps {
+                        functionalTest inst_repos: daosRepos(),
+                                       inst_rpms: functionalPackages()
+                    }
+                    post {
+                        always {
+                            functionalTestPost()
+                        }
+                    } // post
+                } // stage('Functional on Ubuntu 20.04') {
                 stage('Functional_Hardware_Small') {
                     when {
                         beforeAgent true
