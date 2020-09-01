@@ -787,7 +787,7 @@ pipeline {
                     }
                     steps {
                         functionalTest inst_repos: daosRepos(commit_pragma_cache),
-                                       inst_rpms: functionalPackages()
+                                       inst_rpms: functionalPackages(commit_pragma_cache)
                     }
                     post {
                         always {
@@ -809,7 +809,7 @@ pipeline {
                     }
                     steps {
                         functionalTest inst_repos: daosRepos(commit_pragma_cache),
-                                       inst_rpms: functionalPackages()
+                                       inst_rpms: functionalPackages(commit_pragma_cache)
                     }
                     post {
                         always {
@@ -831,7 +831,7 @@ pipeline {
                     }
                     steps {
                         functionalTest inst_repos: daosRepos(commit_pragma_cache),
-                                       inst_rpms: functionalPackages()
+                                       inst_rpms: functionalPackages(commit_pragma_cache)
                     }
                     post {
                         always {
@@ -855,7 +855,7 @@ pipeline {
                     steps {
                         functionalTest target: hwDistroTarget(commit_pragma_cache),
                                        inst_repos: daosRepos(commit_pragma_cache),
-                                       inst_rpms: functionalPackages()
+                                       inst_rpms: functionalPackages(commit_pragma_cache)
                     }
                     post {
                         always {
@@ -879,7 +879,7 @@ pipeline {
                     steps {
                         functionalTest target: hwDistroTarget(commit_pragma_cache),
                                        inst_repos: daosRepos(commit_pragma_cache),
-                                       inst_rpms: functionalPackages()
+                                       inst_rpms: functionalPackages(commit_pragma_cache)
                    }
                     post {
                         always {
@@ -903,7 +903,7 @@ pipeline {
                     steps {
                         functionalTest target: hwDistroTarget(commit_pragma_cache),
                                        inst_repos: daosRepos(commit_pragma_cache),
-                                       inst_rpms: functionalPackages()
+                                       inst_rpms: functionalPackages(commit_pragma_cache)
                     }
                     post {
                         always {
