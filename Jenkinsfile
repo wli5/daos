@@ -282,15 +282,15 @@ pipeline {
                             filename 'Dockerfile.centos.7'
                             dir 'utils/docker'
                             label 'docker_runner'
-                            additionalBuildArgs dockerBuildArgs(qb: quickBuild()) +
+                            additionalBuildArgs dockerBuildArgs(qb: quickBuild(commit_pragma_cache)) +
                                                 " -t ${sanitized_JOB_NAME}-centos7 " +
                                                 ' --build-arg QUICKBUILD_DEPS="' +
                                                   env.QUICKBUILD_DEPS_EL7 + '"' +
-                                                ' --build-arg REPOS="' + prRepos() + '"'
+                                                ' --build-arg REPOS="' + prRepos(commit_pragma_cache) + '"'
                         }
                     }
                     steps {
-                        sconsBuild parallelBuild: parallelBuild(),
+                        sconsBuild parallelBuild: parallelBuild(commit_pragma_cache),
                                    stash_files: 'ci/test_files_to_stash.txt'
                     }
                     post {
@@ -320,7 +320,7 @@ pipeline {
                         beforeAgent true
                         allOf {
                             expression { ! skipStage(stage: 'build-centos7-gcc-debug', cache: commit_pragma_cache) }
-                            expression { ! quickBuild() }
+                            expression { ! quickBuild(commit_pragma_cache) }
                         }
                     }
                     agent {
@@ -328,15 +328,15 @@ pipeline {
                             filename 'Dockerfile.centos.7'
                             dir 'utils/docker'
                             label 'docker_runner'
-                            additionalBuildArgs dockerBuildArgs(qb: quickBuild()) +
+                            additionalBuildArgs dockerBuildArgs(qb: quickBuild(commit_pragma_cache)) +
                                                 " -t ${sanitized_JOB_NAME}-centos7 " +
                                                 ' --build-arg QUICKBUILD_DEPS="' +
                                                   env.QUICKBUILD_DEPS_EL7 + '"' +
-                                                ' --build-arg REPOS="' + prRepos() + '"'
+                                                ' --build-arg REPOS="' + prRepos(commit_pragma_cache) + '"'
                         }
                     }
                     steps {
-                        sconsBuild parallelBuild: parallelBuild()
+                        sconsBuild parallelBuild: parallelBuild(commit_pragma_cache)
                     }
                     post {
                         always {
@@ -365,7 +365,7 @@ pipeline {
                         beforeAgent true
                         allOf {
                             expression { ! skipStage(stage: 'build-centos7-gcc-release', cache: commit_pragma_cache) }
-                            expression { ! quickBuild() }
+                            expression { ! quickBuild(commit_pragma_cache) }
                         }
                     }
                     agent {
@@ -373,15 +373,15 @@ pipeline {
                             filename 'Dockerfile.centos.7'
                             dir 'utils/docker'
                             label 'docker_runner'
-                            additionalBuildArgs dockerBuildArgs(qb: quickBuild()) +
+                            additionalBuildArgs dockerBuildArgs(qb: quickBuild(commit_pragma_cache)) +
                                                 " -t ${sanitized_JOB_NAME}-centos7 " +
                                                 ' --build-arg QUICKBUILD_DEPS="' +
                                                   env.QUICKBUILD_DEPS_EL7 + '"' +
-                                                ' --build-arg REPOS="' + prRepos() + '"'
+                                                ' --build-arg REPOS="' + prRepos(commit_pragma_cache) + '"'
                         }
                     }
                     steps {
-                        sconsBuild parallelBuild: parallelBuild()
+                        sconsBuild parallelBuild: parallelBuild(commit_pragma_cache)
                     }
                     post {
                         always {
@@ -410,7 +410,7 @@ pipeline {
                         beforeAgent true
                         allOf {
                             branch target_branch
-                            expression { ! quickBuild() }
+                            expression { ! quickBuild(commit_pragma_cache) }
                         }
                     }
                     agent {
@@ -418,14 +418,14 @@ pipeline {
                             filename 'Dockerfile.centos.7'
                             dir 'utils/docker'
                             label 'docker_runner'
-                            additionalBuildArgs dockerBuildArgs(qb: quickBuild()) +
+                            additionalBuildArgs dockerBuildArgs(qb: quickBuild(commit_pragma_cache)) +
                                                 " -t ${sanitized_JOB_NAME}-centos7 " +
                                                 ' --build-arg QUICKBUILD_DEPS="' +
                                                   env.QUICKBUILD_DEPS_EL7 + '"'
                         }
                     }
                     steps {
-                        sconsBuild parallelBuild: parallelBuild()
+                        sconsBuild parallelBuild: parallelBuild(commit_pragma_cache)
                     }
                     post {
                         always {
@@ -454,7 +454,7 @@ pipeline {
                         beforeAgent true
                         allOf {
                             branch target_branch
-                            expression { ! quickBuild() }
+                            expression { ! quickBuild(commit_pragma_cache) }
                         }
                     }
                     agent {
@@ -467,7 +467,7 @@ pipeline {
                         }
                     }
                     steps {
-                        sconsBuild parallelBuild: parallelBuild()
+                        sconsBuild parallelBuild: parallelBuild(commit_pragma_cache)
                     }
                     post {
                         always {
@@ -497,7 +497,7 @@ pipeline {
                         allOf {
                             not { branch 'weekly-testing' }
                             not { environment name: 'CHANGE_TARGET', value: 'weekly-testing' }
-                            expression { ! quickBuild() }
+                            expression { ! quickBuild(commit_pragma_cache) }
                             expression { ! skipStage(stage: 'build-ubuntu-clang', cache: commit_pragma_cache) }
                         }
                     }
@@ -511,7 +511,7 @@ pipeline {
                         }
                     }
                     steps {
-                        sconsBuild parallelBuild: parallelBuild()
+                        sconsBuild parallelBuild: parallelBuild(commit_pragma_cache)
                     }
                     post {
                         always {
@@ -541,15 +541,15 @@ pipeline {
                             filename 'Dockerfile.leap.15'
                             dir 'utils/docker'
                             label 'docker_runner'
-                            additionalBuildArgs dockerBuildArgs(qb: quickBuild()) +
+                            additionalBuildArgs dockerBuildArgs(qb: quickBuild(commit_pragma_cache)) +
                                                 " -t ${sanitized_JOB_NAME}-leap15 " +
                                                 ' --build-arg QUICKBUILD_DEPS="' +
                                                   env.QUICKBUILD_DEPS_LEAP15 + '"' +
-                                                ' --build-arg REPOS="' + prRepos() + '"'
+                                                ' --build-arg REPOS="' + prRepos(commit_pragma_cache) + '"'
                         }
                     }
                     steps {
-                        sconsBuild parallelBuild: parallelBuild(),
+                        sconsBuild parallelBuild: parallelBuild(commit_pragma_cache),
                                    stash_files: 'ci/test_files_to_stash.txt'
                     }
                     post {
@@ -579,7 +579,7 @@ pipeline {
                         beforeAgent true
                         allOf {
                             branch target_branch
-                            expression { ! quickBuild() }
+                            expression { ! quickBuild(commit_pragma_cache) }
                         }
                     }
                     agent {
@@ -592,7 +592,7 @@ pipeline {
                         }
                     }
                     steps {
-                        sconsBuild parallelBuild: parallelBuild()
+                        sconsBuild parallelBuild: parallelBuild(commit_pragma_cache)
                     }
                     post {
                         always {
@@ -622,7 +622,7 @@ pipeline {
                         allOf {
                             not { branch 'weekly-testing' }
                             not { environment name: 'CHANGE_TARGET', value: 'weekly-testing' }
-                            expression { ! quickBuild() }
+                            expression { ! quickBuild(commit_pragma_cache) }
                             expression { ! skipStage(stage: 'build-leap15-icc', cache: commit_pragma_cache) }
                         }
                     }
@@ -637,7 +637,7 @@ pipeline {
                         }
                     }
                     steps {
-                        sconsBuild parallelBuild: parallelBuild()
+                        sconsBuild parallelBuild: parallelBuild(commit_pragma_cache)
                     }
                     post {
                         always {
@@ -690,7 +690,7 @@ pipeline {
                     }
                     steps {
                         unitTest timeout_time: 60,
-                                 inst_repos: prRepos(),
+                                 inst_repos: prRepos(commit_pragma_cache),
                                  inst_rpms: unitPackages()
                     }
                     post {
@@ -714,7 +714,7 @@ pipeline {
                     steps {
                         unitTest timeout_time: 60,
                                  ignore_failure: true,
-                                 inst_repos: prRepos(),
+                                 inst_repos: prRepos(commit_pragma_cache),
                                  inst_rpms: unitPackages()
                     }
                     post {
@@ -758,12 +758,12 @@ pipeline {
                                                 " -t ${sanitized_JOB_NAME}-centos7 " +
                                                 ' --build-arg QUICKBUILD_DEPS="' +
                                                   env.QUICKBUILD_DEPS_EL7 + '"' +
-                                                ' --build-arg REPOS="' + prRepos() + '"'
+                                                ' --build-arg REPOS="' + prRepos(commit_pragma_cache) + '"'
                         }
                     }
                     steps {
                         sconsBuild coverity: "daos-stack/daos",
-                                   parallelBuild: parallelBuild()
+                                   parallelBuild: parallelBuild(commit_pragma_cache)
                     }
                     post {
                         success {
@@ -832,7 +832,7 @@ pipeline {
                         label 'ci_nvme3'
                     }
                     steps {
-                        functionalTest target: hwDistroTarget(),
+                        functionalTest target: hwDistroTarget(commit_pragma_cache),
                                        inst_repos: daosRepos(),
                                        inst_rpms: functionalPackages()
                     }
@@ -856,7 +856,7 @@ pipeline {
                         label 'ci_nvme5'
                     }
                     steps {
-                        functionalTest target: hwDistroTarget(),
+                        functionalTest target: hwDistroTarget(commit_pragma_cache),
                                        inst_repos: daosRepos(),
                                        inst_rpms: functionalPackages()
                    }
@@ -880,7 +880,7 @@ pipeline {
                         label 'ci_nvme9'
                     }
                     steps {
-                        functionalTest target: hwDistroTarget(),
+                        functionalTest target: hwDistroTarget(commit_pragma_cache),
                                        inst_repos: daosRepos(),
                                        inst_rpms: functionalPackages()
                     }
@@ -906,7 +906,7 @@ pipeline {
                     }
                     steps {
                         testRpm inst_repos: daosRepos(),
-                                daos_pkg_version: daosPackagesVersion()
+                                daos_pkg_version: daosPackagesVersion(commit_pragma_cache)
                    }
                 } // stage('Test CentOS 7 RPMs')
                 stage('Scan CentOS 7 RPMs') {
@@ -924,7 +924,7 @@ pipeline {
                     }
                     steps {
                         testRpm inst_repos: daosRepos(),
-                                daos_pkg_version: daosPackagesVersion(),
+                                daos_pkg_version: daosPackagesVersion(commit_pragma_cache),
                                 inst_rpms: 'clamav clamav-devel',
                                 test_script: 'ci/rpm/scan_daos.sh',
                                 junit_files: 'maldetect.xml'
@@ -959,7 +959,7 @@ pipeline {
                                 ' --build-arg BULLSEYE=' + env.BULLSEYE +
                                 ' --build-arg QUICKBUILD_DEPS="' +
                                   env.QUICKBUILD_DEPS_EL7 + '"' +
-                                ' --build-arg REPOS="' + prRepos() + '"'
+                                ' --build-arg REPOS="' + prRepos(commit_pragma_cache) + '"'
                         }
                     }
                     steps {
