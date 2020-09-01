@@ -163,6 +163,18 @@ nvme_recov_2(void **state)
 	}
 
 	/**
+	*Set single device for rank1 to faulty.
+	*/
+	for (i = 0; i < ndisks; i++) {
+		if (devices[i].rank == 1) {
+			rc = dmg_storage_set_nvme_fault(dmg_config_file,
+				devices[i].host, devices[i].device_id, 1);
+			assert_int_equal(rc, 0);
+			break;
+		}
+	}
+
+	/**
 	*Get the pool storage information
 	*/
 	rc = pool_storage_info(state, &pinfo);

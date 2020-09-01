@@ -166,10 +166,10 @@ struct dts_context {
 };
 
 typedef struct {
-       uuid_t			device_id;
-       char			state[10];
-       int			rank;
-       char			host[50];
+	uuid_t		device_id;
+	char		state[10];
+	int			rank;
+	char		host[50];
 }  device_list;
 
 /** Initialize an SGL with a variable number of IOVs and set the IOV buffers
@@ -323,5 +323,20 @@ int dmg_pool_destroy(const char *dmg_config_file,
  */
 int dmg_storage_device_list(const char *dmg_config_file, int *ndisks,
 			device_list *devices);
+
+/**
+ * Set NVMe device to faulty. If there is at least one connection to this
+ * pool, and \a force is zero, then this operation completes with DER_BUSY.
+ * Otherwise, the pool is destroyed when the operation completes.
+ *
+ * \param dmg_config_file
+ *		[IN]	DMG config file
+ * \param host	[IN]	Nvme set to faulty on host name provided. Only single
+					disk can be set to fault for now.
+ * \param uuid	[IN]	UUID of the device.
+ * \param force	[IN]	Do not require confirmation
+ */
+int dmg_storage_set_nvme_fault(const char *dmg_config_file,
+			char *host, const uuid_t uuid, int force);
 
 #endif /* __DAOS_TESTS_LIB_H__ */

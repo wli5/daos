@@ -35,9 +35,8 @@ cmd_free_args(char **args, int argcount)
 {
 	int i;
 
-	for (i = 0; i < argcount; i++) {
+	for (i = 0; i < argcount; i++)
 		D_FREE(args[i]);
-	}
 
 	if (argcount)
 		D_FREE(args);
@@ -232,9 +231,8 @@ out:
 			D_ERROR("dmg error: %s\n", err_str);
 			*json_out = json_object_get(tmp);
 
-			if (json_object_object_get_ex(obj, "status", &tmp)) {
+			if (json_object_object_get_ex(obj, "status", &tmp))
 				rc = json_object_get_int(tmp);
-			}
 		} else {
 			if (json_object_object_get_ex(obj, "response", &tmp))
 				*json_out = json_object_get(tmp);
@@ -336,13 +334,12 @@ print_acl_entry(FILE *outstream, struct daos_prop_entry *acl_entry)
 		}
 	}
 
-	for (i = 0; i < nr_acl_str; i++) {
+	for (i = 0; i < nr_acl_str; i++)
 		fprintf(outstream, "%s\n", acl_str[i]);
-	}
 
-	for (i = 0; i < nr_acl_str; i++) {
+	for (i = 0; i < nr_acl_str; i++)
 		D_FREE(acl_str[i]);
-	}
+
 	D_FREE(acl_str);
 
 out:
@@ -676,3 +673,44 @@ out_json:
 
 	return rc;
 }
+
+int
+dmg_storage_set_nvme_fault(const char *dmg_config_file,
+	char *host, const uuid_t uuid, int force)
+{
+	char			uuid_str[DAOS_UUID_STR_SIZE];
+	int			argcount = 0;
+	char			**args = NULL;
+	struct json_object	*dmg_out = NULL;
+	int			rc = 0;
+
+	args = cmd_push_arg(args, &argcount, "--host-list=%s ", host);
+	if (args == NULL)
+		D_GOTO(out, rc = -DER_NOMEM);
+
+	uuid_unparse_lower(uuid, uuid_str);
+	args = cmd_push_arg(args, &argcount, "--uuid=%s ", uuid_str);
+	if (args == NULL)
+		D_GOTO(out, rc = -DER_NOMEM);
+
+	if (force != 0) {
+		args = cmd_push_arg(args, &argcount, "--force");
+		if (args == NULL)
+			D_GOTO(out, rc = -DER_NOMEM);
+	}
+
+	rc = daos_dmg_json_pipe("storage set nvme-faulty", dmg_config_file,
+				args, argcount, &dmg_out);
+	if (rc != 0) {
+		D_ERROR("dmg failed");
+		goto out_json;
+	}
+
+out_json:
+	if (dmg_out != NULL)
+		json_object_put(dmg_out);
+	cmd_free_args(args, argcount);
+out:
+	return rc;
+}
+
