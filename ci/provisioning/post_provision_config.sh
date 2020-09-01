@@ -12,6 +12,8 @@ host wolf-*
     LogLevel error
 EOF
 
+env | grep -vie password -e passwd
+
 DSL_REPO_var="DAOS_STACK_${DISTRO}_LOCAL_REPO"
 DSG_REPO_var="DAOS_STACK_${DISTRO}_GROUP_REPO"
 
