@@ -608,9 +608,9 @@ dmg_storage_device_list(const char *dmg_config_file, int *ndisks,
 	struct json_object	*hosts = NULL;
 	struct json_object	*smd_info = NULL;
 	struct json_object	*smd_dev = NULL;
-	struct json_object	*dev_array = NULL;
-	int			device_length = 0;
-	int			total_disk = 0;
+	struct json_object	*dev = NULL;
+	int			dev_length = 0;
+	int			num_dev = 0;
 	int			i, rc = 0;
 
 	rc = daos_dmg_json_pipe("storage query list-devices", dmg_config_file,
@@ -648,21 +648,22 @@ dmg_storage_device_list(const char *dmg_config_file, int *ndisks,
 				}
 
 				if (smd_dev != NULL)
-					device_length = json_object_array_length(
+					dev_length = json_object_array_length(
 						smd_dev);
 
 				if (ndisks != NULL)
-					*ndisks = *ndisks + device_length;
+					*ndisks = *ndisks + dev_length;
 
 				if (devices != NULL) {
-					for (i = 0; i < device_length; i++) {
-						dev_array = json_object_array_get_idx(
+					for (i = 0; i < dev_length; i++) {
+						dev = json_object_array_get_idx(
 							smd_dev, i);
-						strcpy(devices[total_disk].host,
+						strcpy(
+							devices[num_dev].host,
 							json_object_to_json_string(
 								hosts));
-						parse_device_info(dev_array,
-							&devices[total_disk++]);
+						parse_device_info(dev,
+							&devices[num_dev++]);
 					}
 				}
 			}
