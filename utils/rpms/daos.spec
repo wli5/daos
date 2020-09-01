@@ -58,13 +58,13 @@ BuildRequires: readline-devel
 BuildRequires: valgrind-devel
 BuildRequires: systemd
 BuildRequires: python-devel
+BuildRequires: python-distro
 %if (0%{?rhel} >= 7)
 BuildRequires: numactl-devel
 BuildRequires: CUnit-devel
 BuildRequires: golang-bin >= 1.12
 BuildRequires: libipmctl-devel
 BuildRequires: python36-devel
-BuildRequires: python36-distro
 BuildRequires: Lmod
 %else
 %if (0%{?suse_version} >= 1315)
