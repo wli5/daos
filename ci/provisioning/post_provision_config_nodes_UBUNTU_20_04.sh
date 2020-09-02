@@ -61,7 +61,13 @@ post_provision_config_nodes() {
     if [ -n "$INST_RPMS" ]; then
         # shellcheck disable=SC2086
         #yum -y erase $INST_RPMS
-        apt-get -y remove $INST_RPMS
+        if ! apt-get -y remove $INST_RPMS; then
+            rc=${PIPESTATUS[0]}
+            if [ $rc -ne 100 ]; then
+                echo "Error $rc removing $INST_RPMS"
+                exit $rc
+            fi
+        fi
     fi
     #for gpg_url in $GPG_KEY_URLS; do
     #  rpm --import "$gpg_url"
