@@ -1,0 +1,35 @@
+hosts:
+    test_servers:
+        - server-A
+    test_clients:
+        - server-B
+timeout: 240
+server_config:
+    name: daos_server
+pool:
+    mode: 146
+    name: daos_server
+    scm_size: 1G
+    control_method: dmg
+container:
+    type: POSIX
+    control_method: daos
+    dcp_basics:
+        uns_dir: /tmp/daos_uns
+ior:
+    client_processes:
+        np: 1
+    test_file: testFile
+    dcp_basics:
+        flags_write:
+            - "-v -w -k"
+        flags_read:
+            - "-v -r -R"
+        block_size_large: '1100M' # Over 1G
+    block_size: '1K'
+    transfer_size: '1K'
+    signature: 5
+datamover:
+    src_path: "/"
+    dest_path: "/"
+    processes: 1
