@@ -155,6 +155,7 @@ This is the package needed to run a DAOS client
 Summary: The DAOS test suite
 Requires: %{name}-client = %{version}-%{release}
 Requires: python-pathlib
+Requires: python-distro
 Requires: fio
 %if (0%{?suse_version} >= 1315)
 Requires: libpsm_infinipath1
