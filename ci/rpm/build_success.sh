@@ -20,8 +20,14 @@ artdir="${PWD}/artifacts/${TARGET}"
 if [ -d /var/cache/pbuilder/ ]; then
     mockroot=/var/cache/pbuilder/
     (if cd "$mockroot/result/"; then
-      cp -r . "$artdir"
+      cp *{.buildinfo,.changes,.deb,.dsc,.xz} "$artdir"
     fi)
+    cp _topdir/BUILD/*.orig.tar.*  "$artdir"
+    pushd "$artdir"
+    dpkg-scanpackages . /dev/null | \
+        gzip -9c > Packages.gz
+    popd
+
     # fake file just to keep stash happy
     touch "${TARGET}-rpm-version"
     exit 0
