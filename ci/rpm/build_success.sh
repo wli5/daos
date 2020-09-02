@@ -28,8 +28,7 @@ if [ -d /var/cache/pbuilder/ ]; then
         gzip -9c > Packages.gz
     popd
 
-    # fake file just to keep stash happy
-    touch "${TARGET}-rpm-version"
+    dpkg -f "$artdir"/daos-server_*_amd64.deb Version > "${TARGET}-rpm-version"
     exit 0
 fi
 
@@ -43,7 +42,7 @@ fi
   cp -r . "$artdir"
 fi)
 
-createrepo artifacts/"${TARGET}"/
+createrepo "$artdir"
 rpm --qf "%{version}-%{release}.%{arch}" \
-    -qp artifacts/"${TARGET}"/daos-server-*.x86_64.rpm > "${TARGET}-rpm-version"
+    -qp "$artdir"/daos-server-*.x86_64.rpm > "${TARGET}-rpm-version"
 cat "$mockroot"/result/{root,build}.log
