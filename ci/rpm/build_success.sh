@@ -22,7 +22,7 @@ if [ -d /var/cache/pbuilder/ ]; then
     (if cd "$mockroot/result/"; then
       cp *{.buildinfo,.changes,.deb,.dsc,.xz} "$artdir"
     fi)
-    cp _topdir/BUILD/*.orig.tar.*  "$artdir"
+    cp utils/rpms/_topdir/BUILD/*.orig.tar.*  "$artdir"
     pushd "$artdir"
     dpkg-scanpackages . /dev/null | \
         gzip -9c > Packages.gz
