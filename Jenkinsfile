@@ -235,7 +235,7 @@ pipeline {
                             not { branch 'weekly-testing' }
                             not { environment name: 'CHANGE_TARGET',
                                               value: 'weekly-testing' }
-                            expression { ! skip_stage('build-leap15-rpm') }
+                            expression { ! skipStage(stage: 'build-leap15-rpm') }
                         }
                     }
                     agent {
@@ -243,13 +243,12 @@ pipeline {
                             filename 'Dockerfile.mockbuild'
                             dir 'utils/rpms/packaging'
                             label 'docker_runner'
-                            args '--privileged=true'
-                            additionalBuildArgs '$BUILDARGS'
+                            additionalBuildArgs dockerBuildArgs()
                             args  '--group-add mock --cap-add=SYS_ADMIN --privileged=true'
                         }
                     }
                     steps {
-                        buildRpm unstable: true
+                        buildRpm()
                     }
                     post {
                         success {
@@ -290,7 +289,7 @@ pipeline {
                         }
                     }
                     steps {
-                        buildRpm unstable: true
+                        buildRpm()
                     }
                     post {
                         success {
