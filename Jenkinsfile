@@ -355,51 +355,6 @@ pipeline {
                         }
                     }
                 }
-                stage('Build on CentOS 7 debug') {
-                    when {
-                        beforeAgent true
-                        allOf {
-                            expression { ! skipStage(stage: 'build-centos7-gcc-debug', cache: commit_pragma_cache) }
-                            expression { ! quickBuild(commit_pragma_cache) }
-                        }
-                    }
-                    agent {
-                        dockerfile {
-                            filename 'Dockerfile.centos.7'
-                            dir 'utils/docker'
-                            label 'docker_runner'
-                            additionalBuildArgs dockerBuildArgs(qb: quickBuild(commit_pragma_cache)) +
-                                                " -t ${sanitized_JOB_NAME}-centos7 " +
-                                                ' --build-arg QUICKBUILD_DEPS="' +
-                                                  env.QUICKBUILD_DEPS_EL7 + '"' +
-                                                ' --build-arg REPOS="' + prRepos(commit_pragma_cache) + '"'
-                        }
-                    }
-                    steps {
-                        sconsBuild parallelBuild: parallelBuild(commit_pragma_cache)
-                    }
-                    post {
-                        always {
-                            recordIssues enabledForFailure: true,
-                                         aggregatingResults: true,
-                                         id: "analysis-gcc-centos7-debug",
-                                         tools: [ gcc4(pattern: 'centos7-gcc-debug-build.log'),
-                                                  cppCheck(pattern: 'centos7-gcc-debug-build.log') ],
-                                         filters: [ excludeFile('.*\\/_build\\.external\\/.*'),
-                                                   excludeFile('_build\\.external\\/.*') ]
-                        }
-                        success {
-                            sh "rm -rf _build.external"
-                        }
-                        unsuccessful {
-                            sh """if [ -f config.log ]; then
-                                      mv config.log config.log-centos7-gcc-debug
-                                  fi"""
-                            archiveArtifacts artifacts: 'config.log-centos7-gcc-debug',
-                                             allowEmptyArchive: true
-                        }
-                    }
-                }
                 stage('Build on CentOS 7 release') {
                     when {
                         beforeAgent true
