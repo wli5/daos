@@ -16,7 +16,6 @@ post_provision_config_nodes() {
     #fi
     codename=$(lsb_release -s -c)
     if [ -n "$DAOS_STACK_GROUP_REPO" ]; then
-        apt-get install software-properties-common
         #rm -f /etc/yum.repos.d/*"$DAOS_STACK_GROUP_REPO"
         #yum-config-manager \
         #      --add-repo="$REPOSITORY_URL"/"$DAOS_STACK_GROUP_REPO"
@@ -24,10 +23,11 @@ post_provision_config_nodes() {
     fi
 
     if [ -n "$DAOS_STACK_LOCAL_REPO" ]; then
-        apt-get install software-properties-common
         #rm -f /etc/yum.repos.d/*"$DAOS_STACK_LOCAL_REPO"
         #yum-config-manager --add-repo="$REPOSITORY_URL"/"$DAOS_STACK_LOCAL_REPO"
-        add-apt-repository "deb [trusted=yes] $REPOSITORY_URL/$DAOS_STACK_LOCAL_REPO $codename main"
+        # add-apt-repository strips the [trusted=yes] from the repo line added
+        #add-apt-repository "deb [trusted=yes] $REPOSITORY_URL/$DAOS_STACK_LOCAL_REPO $codename main"
+        echo "deb [trusted=yes] $REPOSITORY_URL/$DAOS_STACK_LOCAL_REPO $codename main" >> /etc/apt/sources.list
         #echo "gpgcheck = False" >> \
         #    /etc/yum.repos.d/*"${DAOS_STACK_LOCAL_REPO//\//_}".repo
     fi
@@ -45,7 +45,9 @@ post_provision_config_nodes() {
                 fi
             fi
             #yum-config-manager --add-repo="${JENKINS_URL}"job/daos-stack/job/"${repo}"/job/"${branch//\//%252F}"/"${build_number}"/artifact/artifacts/centos7/
-            add-apt-repository "deb [trusted=yes] ${JENKINS_URL}job/daos-stack/job/${repo}/job/${branch//\//%252F}/${build_number}/artifact/artifacts/ubuntu20.04 ./"
+            # add-apt-repository strips the [trusted=yes] from the repo line added
+            #add-apt-repository "deb [trusted=yes] ${JENKINS_URL}job/daos-stack/job/${repo}/job/${branch//\//%252F}/${build_number}/artifact/artifacts/ubuntu20.04 ./"
+            echo "deb [trusted=yes] ${JENKINS_URL}job/daos-stack/job/${repo}/job/${branch//\//%252F}/${build_number}/artifact/artifacts/ubuntu20.04 ./" >> /etc/apt/sources.list
             #pname=$(ls /etc/yum.repos.d/*.hpdd.intel.com_job_daos-stack_job_"${repo}"_job_"${branch//\//%252F}"_"${build_number}"_artifact_artifacts_centos7_.repo)
             #if [ "$pname" != "${pname//%252F/_}" ]; then
             #    mv "$pname" "${pname//%252F/_}"
@@ -55,6 +57,7 @@ post_provision_config_nodes() {
             #cat "$pname"
         done
     fi
+    apt-get update
     if [ -n "$INST_RPMS" ]; then
         # shellcheck disable=SC2086
         #yum -y erase $INST_RPMS
