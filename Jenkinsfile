@@ -690,7 +690,7 @@ pipeline {
                     steps {
                         unitTest timeout_time: 60,
                                  inst_repos: prRepos(commit_pragma_cache),
-                                 inst_rpms: unitPackages()
+                                 inst_rpms: unitPackages(commit_pragma_cache)
                     }
                     post {
                       always {
@@ -714,7 +714,7 @@ pipeline {
                         unitTest timeout_time: 60,
                                  ignore_failure: true,
                                  inst_repos: prRepos(commit_pragma_cache),
-                                 inst_rpms: unitPackages()
+                                 inst_rpms: unitPackages(commit_pragma_cache)
                     }
                     post {
                         always {
