@@ -28,7 +28,7 @@ if [ -d /var/cache/pbuilder/ ]; then
         gzip -9c > Packages.gz
     popd
 
-    dpkg -f "$artdir"/daos-server_*_amd64.deb Version > "${TARGET}-rpm-version"
+    dpkg -f "$artdir"/daos-server_*_amd64.deb Version > "${TARGET%.*}-rpm-version"
     exit 0
 fi
 
