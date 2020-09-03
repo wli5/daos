@@ -32,7 +32,7 @@
 #include "daos_test.h"
 #include "daos_iotest.h"
 
-#define IO_SIZE_NVME	(5ULL << 10) /* all records  >= 4K */
+#define IO_SIZE_NVME	(5ULL << 20) /* all records  >= 4K */
 #define	IO_SIZE_SCM	64
 
 static void
@@ -129,20 +129,25 @@ nvme_recov_2(void **state)
 	test_arg_t		*arg = *state;
 	device_list		*devices = NULL;
 	daos_obj_id_t		oid;
-	daos_pool_info_t	pinfo;
+	char		data_buf[100];
+	char		fetch_buf[100] = { 0 };
+	struct ioreq	req;
 	int			ndisks;
 	int			rc, i;
 
-	/**
-	*Get the pool storage information
-	*/
-	rc = pool_storage_info(state, &pinfo);
-	assert_int_equal(rc, 0);
+	if (!is_nvme_enabled(arg)) {
+		print_message("NVMe isn't enabled.\n");
+		skip();
+	}
 
 	oid = dts_oid_gen(dts_obj_class, 0, arg->myrank);
-	io_simple_internal(state, oid, IO_SIZE_NVME, DAOS_IOD_ARRAY,
-			   "io_simple_nvme_array dkey",
-			   "io_simple_nvme_array akey");
+	ioreq_init(&req, arg->coh, oid, DAOS_IOD_ARRAY, arg);
+	memset(data_buf, 'a', 100);
+
+	/** Insert record **/
+	print_message("Insert single record with 100 extents\n");
+	insert_single_with_rxnr("dkey", "akey", 0, data_buf,
+		1, 100, DAOS_TX_NONE, &req);
 
 	/**
 	*Get the Number of devices
@@ -167,18 +172,34 @@ nvme_recov_2(void **state)
 	*/
 	for (i = 0; i < ndisks; i++) {
 		if (devices[i].rank == 1) {
+			print_message("NVMe with UUID=%s on host=%s set to Faulty\n",
+				DP_UUID(devices[i].device_id), devices[i].host);
 			rc = dmg_storage_set_nvme_fault(dmg_config_file,
 				devices[i].host, devices[i].device_id, 1);
 			assert_int_equal(rc, 0);
 			break;
 		}
 	}
+	sleep(30);
 
 	/**
-	*Get the pool storage information
+	*Verify the Rank0 device as FAULTY
 	*/
-	rc = pool_storage_info(state, &pinfo);
+	rc = dmg_storage_device_list(dmg_config_file, NULL, devices);
 	assert_int_equal(rc, 0);
+	for (i = 0; i < ndisks; i++) {
+		if (devices[i].rank == 1) {
+			assert_string_equal(devices[i].state, "\"FAULTY\"");
+			break;
+		}
+	}
+
+	/** Lookup all the records **/
+	print_message("Lookup and Verify all the records:\n");
+	lookup_single_with_rxnr("dkey", "akey", 0, fetch_buf,
+		1, 100, DAOS_TX_NONE, &req);
+	for (i = 0; i < 100; i++)
+		assert_memory_equal(&fetch_buf[i], "a", 1);
 
 	/* Teardown */
 	D_FREE(devices);

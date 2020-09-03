@@ -610,6 +610,9 @@ dmg_storage_device_list(const char *dmg_config_file, int *ndisks,
 	int			num_dev = 0;
 	int			i, rc = 0;
 
+	if (ndisks != NULL)
+		*ndisks = 0;
+
 	rc = daos_dmg_json_pipe("storage query list-devices", dmg_config_file,
 				NULL, 0, &dmg_out);
 	if (rc != 0) {
