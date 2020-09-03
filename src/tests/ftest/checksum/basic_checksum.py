@@ -61,7 +61,7 @@ class ChecksumContainerValidation(TestWithServers):
         # DAOS-5525: Use compat shims until this test is updated.
         import os
         dmg = self.get_dmg_command()
-        os.putenv('DMG_CONFIG_FILE', dmg.yaml.filename)
+        os.environ['DMG_CONFIG_FILE'] = dmg.yaml.filename
 
         self.pool = TestPool(self.context)
         self.pool.get_params(self)
