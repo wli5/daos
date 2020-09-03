@@ -10,8 +10,6 @@ usr/bin/ring_pl_map
 usr/bin/pl_bench
 usr/bin/rdbt
 usr/lib64/libvos.so
-usr/lib64/libcart*
-usr/lib64/libgurt*
 usr/lib64/libdaos_common.so
 usr/etc/memcheck-cart.supp
 usr/etc/vos_size_input.yaml
