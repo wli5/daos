@@ -1026,3 +1026,23 @@ get_daos_prop_with_user_acl_perms(uint64_t perms)
 	D_FREE(user);
 	return prop;
 }
+
+int
+get_server_config(char *host)
+{
+	char command[70];
+	char buf[256];
+
+	snprintf(command, sizeof(command),
+		"ssh %s\" ps ux | grep daos_server | grep start", host);
+	FILE *fp = popen(command, "r");
+	if (fp == NULL)
+		return -DER_INVAL;
+
+	while (fgets(buf, sizeof(buf), fp) != 0) {
+		print_message("--	%s\n", buf);
+	}
+
+	pclose(fp);
+	return(0);
+}

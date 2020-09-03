@@ -143,7 +143,7 @@ nvme_recov_2(void **state)
 	oid = dts_oid_gen(dts_obj_class, 0, arg->myrank);
 	ioreq_init(&req, arg->coh, oid, DAOS_IOD_ARRAY, arg);
 	memset(data_buf, 'a', 100);
-
+	
 	/** Insert record **/
 	print_message("Insert single record with 100 extents\n");
 	insert_single_with_rxnr("dkey", "akey", 0, data_buf,
@@ -165,11 +165,15 @@ nvme_recov_2(void **state)
 		print_message("Rank=%d UUID=%s state=%s host=%s\n",
 			devices[i].rank, DP_UUID(devices[i].device_id),
 			devices[i].state, devices[i].host);
+		if (devices[i].rank == 1)
+			get_server_config(strtok(devices[i].host, ":"));
 	}
+
+	
 
 	/**
 	*Set single device for rank1 to faulty.
-	*/
+
 	for (i = 0; i < ndisks; i++) {
 		if (devices[i].rank == 1) {
 			print_message("NVMe with UUID=%s on host=%s set to Faulty\n",
@@ -180,11 +184,11 @@ nvme_recov_2(void **state)
 			break;
 		}
 	}
-	sleep(30);
+	sleep(30);*/
 
 	/**
-	*Verify the Rank0 device as FAULTY
-	*/
+	*Verify the Rank1 device as FAULTY
+	
 	rc = dmg_storage_device_list(dmg_config_file, NULL, devices);
 	assert_int_equal(rc, 0);
 	for (i = 0; i < ndisks; i++) {
@@ -192,7 +196,7 @@ nvme_recov_2(void **state)
 			assert_string_equal(devices[i].state, "\"FAULTY\"");
 			break;
 		}
-	}
+	}*/
 
 	/** Lookup all the records **/
 	print_message("Lookup and Verify all the records:\n");
