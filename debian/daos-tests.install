@@ -1,7 +1,16 @@
 usr/lib/daos/TESTING/*
 usr/lib/cart/TESTING/*
 usr/bin/hello_drpc
-usr/bin/*_test*
+usr/bin/acl_dump_test
+usr/bin/agent_tests
+usr/bin/common_test
+usr/bin/daos_test
+usr/bin/drpc_iosrv_test
+usr/bin/drpc_test
+usr/bin/eq_tests
+usr/bin/security_test
+usr/bin/srv_checksum_tests
+usr/bin/vos_tests
 usr/bin/smd_ut
 usr/bin/vea_ut
 usr/bin/daos_perf

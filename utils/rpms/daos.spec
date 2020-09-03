@@ -368,6 +368,7 @@ getent passwd daos_server >/dev/null || useradd -M daos_server
 %{_prefix}/lib/cart/TESTING
 %{_bindir}/hello_drpc
 %{_bindir}/*_test*
+%exclude %{_bindir}/self_test
 %{_bindir}/smd_ut
 %{_bindir}/vea_ut
 %{_bindir}/daos_perf
