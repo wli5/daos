@@ -56,7 +56,6 @@ Package: libdaos-dev
 Section: libdevel
 Architecture: any
 Multi-Arch: same
-Depends: libcart4 (= ${binary:Version}), ${misc:Depends}
 Description: The Distributed Asynchronous Object Storage (DAOS) is an open-source
  software-defined object store designed from the ground up for
  massively distributed Non Volatile Memory (NVM). DAOS takes advantage
@@ -92,8 +91,7 @@ Description: The Distributed Asynchronous Object Storage (DAOS) is an open-sourc
 Package: daos-tests
 Architecture: any
 Multi-Arch: same
-Depends: cart (= ${binary:Version}),
-         python (>=2.7), python3, python-yaml, python3-yaml,
+Depends: python (>=2.7), python3, python-yaml, python3-yaml,
          ${shlibs:Depends}, ${misc:Depends}
 Description: The Distributed Asynchronous Object Storage (DAOS) is an open-source
  software-defined object store designed from the ground up for
