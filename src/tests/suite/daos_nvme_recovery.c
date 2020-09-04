@@ -166,7 +166,7 @@ nvme_recov_2(void **state)
 			devices[i].rank, DP_UUID(devices[i].device_id),
 			devices[i].state, devices[i].host);
 		if (devices[i].rank == 1)
-			get_server_config(strtok(devices[i].host, ":"));
+			get_server_config(strtok(devices[1].host, ":"));
 	}
 
 	

@@ -1030,8 +1030,10 @@ get_daos_prop_with_user_acl_perms(uint64_t perms)
 int
 get_server_config(char *host)
 {
-	char command[70];
-	char buf[256];
+	char	command[256];
+	char	buf[256];
+	char	*pch;
+	char	*server_config_file;
 
 	snprintf(command, sizeof(command),
 		"ssh %s\" ps ux | grep daos_server | grep start", host);
@@ -1040,9 +1042,26 @@ get_server_config(char *host)
 		return -DER_INVAL;
 
 	while (fgets(buf, sizeof(buf), fp) != 0) {
-		print_message("--	%s\n", buf);
+		if(strstr(buf, "--config") != NULL || strstr(buf, "-o") != NULL)
+			break;
 	}
 
+	if (buf == NULL)
+		return -DER_INVAL;
+
+	server_config_file = malloc(sizeof(buf));
+	pch = strtok(buf," ");
+	while (pch != NULL) {
+		if (strstr(pch, "yaml") != NULL){
+			strcpy(server_config_file, pch);
+			break;
+		}
+		pch = strtok (NULL, " ");
+	}
+
+	print_message("FINAL %s\n", server_config_file);
+
 	pclose(fp);
+	D_FREE(server_config_file);
 	return(0);
 }
