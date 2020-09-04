@@ -29,6 +29,8 @@ if [ -d /var/cache/pbuilder/ ]; then
     popd
 
     dpkg -f "$artdir"/daos-server_*_amd64.deb Version > "${TARGET%.*}-rpm-version"
+    ls -l "${TARGET%.*}-rpm-version" || true
+    cat "${TARGET%.*}-rpm-version" || true
     exit 0
 fi
 
