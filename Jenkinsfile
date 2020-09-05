@@ -164,7 +164,7 @@ pipeline {
                         }
                     }
                     steps {
-                        pythonBanditCheck()
+                        pythonBanditCheck cache: commit_pragma_cache
                     }
                     post {
                         always {
@@ -208,23 +208,28 @@ pipeline {
                         }
                     }
                     steps {
-                        buildRpm()
+                        buildRpm cache: commit_pragma_cache
                     }
                     post {
                         success {
-                            buildRpmPost condition: 'success'
+                            buildRpmPost condition: 'success',
+                                         cache: commit_pragma_cache
                         }
                         unstable {
-                            buildRpmPost condition: 'unstable'
+                            buildRpmPost condition: 'unstable',
+                                         cache: commit_pragma_cache
                         }
                         failure {
-                            buildRpmPost condition: 'failure'
+                            buildRpmPost condition: 'failure',
+                                         cache: commit_pragma_cache
                         }
                         unsuccessful {
-                            buildRpmPost condition: 'unsuccessful'
+                            buildRpmPost condition: 'unsuccessful',
+                                         cache: commit_pragma_cache
                         }
                         cleanup {
-                            buildRpmPost condition: 'cleanup'
+                            buildRpmPost condition: 'cleanup',
+                                         cache: commit_pragma_cache
                         }
                     }
                 }
@@ -248,23 +253,28 @@ pipeline {
                         }
                     }
                     steps {
-                        buildRpm()
+                        buildRpm cache: commit_pragma_cache
                     }
                     post {
                         success {
-                            buildRpmPost condition: 'success'
+                            buildRpmPost condition: 'success',
+                                         cache: commit_pragma_cache
                         }
                         unstable {
-                            buildRpmPost condition: 'unstable'
+                            buildRpmPost condition: 'unstable',
+                                         cache: commit_pragma_cache
                         }
                         failure {
-                            buildRpmPost condition: 'failure'
+                            buildRpmPost condition: 'failure',
+                                         cache: commit_pragma_cache
                         }
                         unsuccessful {
-                            buildRpmPost condition: 'unsuccessful'
+                            buildRpmPost condition: 'unsuccessful',
+                                         cache: commit_pragma_cache
                         }
                         cleanup {
-                            buildRpmPost condition: 'cleanup'
+                            buildRpmPost condition: 'cleanup',
+                                         cache: commit_pragma_cache
                         }
                     }
                 }
@@ -289,23 +299,28 @@ pipeline {
                         }
                     }
                     steps {
-                        buildRpm()
+                        buildRpm cache: commit_pragma_cache
                     }
                     post {
                         success {
-                            buildRpmPost condition: 'success'
+                            buildRpmPost condition: 'success',
+                                         cache: commit_pragma_cache
                         }
                         unstable {
-                            buildRpmPost condition: 'unstable'
+                            buildRpmPost condition: 'unstable',
+                                         cache: commit_pragma_cache
                         }
                         failure {
-                            buildRpmPost condition: 'failure'
+                            buildRpmPost condition: 'failure',
+                                         cache: commit_pragma_cache
                         }
                         unsuccessful {
-                            buildRpmPost condition: 'unsuccessful'
+                            buildRpmPost condition: 'unsuccessful',
+                                         cache: commit_pragma_cache
                         }
                         cleanup {
-                            buildRpmPost condition: 'cleanup'
+                            buildRpmPost condition: 'cleanup',
+                                         cache: commit_pragma_cache
                         }
                     }
                 }
@@ -330,7 +345,8 @@ pipeline {
                     }
                     steps {
                         sconsBuild parallelBuild: parallelBuild(commit_pragma_cache),
-                                   stash_files: 'ci/test_files_to_stash.txt'
+                                   stash_files: 'ci/test_files_to_stash.txt',
+                                   cache: commit_pragma_cache
                     }
                     post {
                         always {
@@ -375,7 +391,8 @@ pipeline {
                         }
                     }
                     steps {
-                        sconsBuild parallelBuild: parallelBuild(commit_pragma_cache)
+                        sconsBuild parallelBuild: parallelBuild(commit_pragma_cache),
+                                   cache: commit_pragma_cache
                     }
                     post {
                         always {
@@ -419,7 +436,8 @@ pipeline {
                         }
                     }
                     steps {
-                        sconsBuild parallelBuild: parallelBuild(commit_pragma_cache)
+                        sconsBuild parallelBuild: parallelBuild(commit_pragma_cache),
+                                   cache: commit_pragma_cache
                     }
                     post {
                         always {
@@ -461,7 +479,8 @@ pipeline {
                         }
                     }
                     steps {
-                        sconsBuild parallelBuild: parallelBuild(commit_pragma_cache)
+                        sconsBuild parallelBuild: parallelBuild(commit_pragma_cache),
+                                   cache: commit_pragma_cache
                     }
                     post {
                         always {
@@ -505,7 +524,8 @@ pipeline {
                         }
                     }
                     steps {
-                        sconsBuild parallelBuild: parallelBuild(commit_pragma_cache)
+                        sconsBuild parallelBuild: parallelBuild(commit_pragma_cache),
+                                   cache: commit_pragma_cache
                     }
                     post {
                         always {
@@ -544,7 +564,8 @@ pipeline {
                     }
                     steps {
                         sconsBuild parallelBuild: parallelBuild(commit_pragma_cache),
-                                   stash_files: 'ci/test_files_to_stash.txt'
+                                   stash_files: 'ci/test_files_to_stash.txt',
+                                   cache: commit_pragma_cache
                     }
                     post {
                         always {
@@ -586,7 +607,8 @@ pipeline {
                         }
                     }
                     steps {
-                        sconsBuild parallelBuild: parallelBuild(commit_pragma_cache)
+                        sconsBuild parallelBuild: parallelBuild(commit_pragma_cache),
+                                   cache: commit_pragma_cache
                     }
                     post {
                         always {
@@ -631,7 +653,8 @@ pipeline {
                         }
                     }
                     steps {
-                        sconsBuild parallelBuild: parallelBuild(commit_pragma_cache)
+                        sconsBuild parallelBuild: parallelBuild(commit_pragma_cache),
+                                   cache: commit_pragma_cache
                     }
                     post {
                         always {
@@ -685,13 +708,15 @@ pipeline {
                     steps {
                         unitTest timeout_time: 60,
                                  inst_repos: prRepos(commit_pragma_cache),
-                                 inst_rpms: unitPackages(commit_pragma_cache)
+                                 inst_rpms: unitPackages(commit_pragma_cache),
+                                 cache: commit_pragma_cache
                     }
                     post {
                       always {
                             unitTestPost artifacts: ['unit_test_logs/*',
                                                      'unit_vm_test/**'],
-                                         valgrind_stash: 'centos7-gcc-unit-valg'
+                                         valgrind_stash: 'centos7-gcc-unit-valg',
+                                         cache: commit_pragma_cache
                         }
                     }
                 }
@@ -709,7 +734,8 @@ pipeline {
                         unitTest timeout_time: 60,
                                  ignore_failure: true,
                                  inst_repos: prRepos(commit_pragma_cache),
-                                 inst_rpms: unitPackages(commit_pragma_cache)
+                                 inst_rpms: unitPackages(commit_pragma_cache),
+                                 cache: commit_pragma_cache
                     }
                     post {
                         always {
@@ -719,7 +745,8 @@ pipeline {
                             // added.
                             unitTestPost ignore_failure: true,
                                          artifacts: ['covc_test_logs/*',
-                                                     'covc_vm_test/**']
+                                                     'covc_vm_test/**'],
+                                         cache: commit_pragma_cache
                         }
                     }
                 } // stage('Unit test Bullseye')
@@ -757,7 +784,8 @@ pipeline {
                     }
                     steps {
                         sconsBuild coverity: "daos-stack/daos",
-                                   parallelBuild: parallelBuild(commit_pragma_cache)
+                                   parallelBuild: parallelBuild(commit_pragma_cache),
+                                   cache: commit_pragma_cache
                     }
                     post {
                         success {
@@ -782,7 +810,8 @@ pipeline {
                     }
                     steps {
                         functionalTest inst_repos: daosRepos(commit_pragma_cache),
-                                       inst_rpms: functionalPackages(commit_pragma_cache)
+                                       inst_rpms: functionalPackages(commit_pragma_cache),
+                                       cache: commit_pragma_cache
                     }
                     post {
                         always {
@@ -804,7 +833,8 @@ pipeline {
                     }
                     steps {
                         functionalTest inst_repos: daosRepos(commit_pragma_cache),
-                                       inst_rpms: functionalPackages(commit_pragma_cache)
+                                       inst_rpms: functionalPackages(commit_pragma_cache),
+                                       cache: commit_pragma_cache
                     }
                     post {
                         always {
@@ -826,7 +856,8 @@ pipeline {
                     }
                     steps {
                         functionalTest inst_repos: daosRepos(commit_pragma_cache),
-                                       inst_rpms: functionalPackages(commit_pragma_cache)
+                                       inst_rpms: functionalPackages(commit_pragma_cache),
+                                       cache: commit_pragma_cache
                     }
                     post {
                         always {
@@ -849,7 +880,8 @@ pipeline {
                     }
                     steps {
                         functionalTest inst_repos: daosRepos(commit_pragma_cache),
-                                       inst_rpms: functionalPackages(commit_pragma_cache)
+                                       inst_rpms: functionalPackages(commit_pragma_cache),
+                                       cache: commit_pragma_cache
                     }
                     post {
                         always {
@@ -873,7 +905,8 @@ pipeline {
                     steps {
                         functionalTest target: hwDistroTarget(commit_pragma_cache),
                                        inst_repos: daosRepos(commit_pragma_cache),
-                                       inst_rpms: functionalPackages(commit_pragma_cache)
+                                       inst_rpms: functionalPackages(commit_pragma_cache),
+                                       cache: commit_pragma_cache
                    }
                     post {
                         always {
@@ -897,7 +930,8 @@ pipeline {
                     steps {
                         functionalTest target: hwDistroTarget(commit_pragma_cache),
                                        inst_repos: daosRepos(commit_pragma_cache),
-                                       inst_rpms: functionalPackages(commit_pragma_cache)
+                                       inst_rpms: functionalPackages(commit_pragma_cache),
+                                       cache: commit_pragma_cache
                     }
                     post {
                         always {
@@ -921,7 +955,8 @@ pipeline {
                     }
                     steps {
                         testRpm inst_repos: daosRepos(commit_pragma_cache),
-                                daos_pkg_version: daosPackagesVersion(commit_pragma_cache)
+                                daos_pkg_version: daosPackagesVersion(commit_pragma_cache),
+                                cache: commit_pragma_cache
                    }
                 } // stage('Test CentOS 7 RPMs')
                 stage('Scan CentOS 7 RPMs') {
@@ -938,11 +973,12 @@ pipeline {
                         label 'ci_vm1'
                     }
                     steps {
-                        testRpm inst_repos: daosRepos(commit_pragma_cache),
+                        scanRpm inst_repos: daosRepos(commit_pragma_cache),
                                 daos_pkg_version: daosPackagesVersion(commit_pragma_cache),
                                 inst_rpms: 'clamav clamav-devel',
                                 test_script: 'ci/rpm/scan_daos.sh',
-                                junit_files: 'maldetect.xml'
+                                junit_files: 'maldetect.xml',
+                                cache: commit_pragma_cache
                     }
                     post {
                         always {
@@ -980,12 +1016,12 @@ pipeline {
                     steps {
                         // The coverage_healthy is primarily set here
                         // while the code coverage feature is being implemented.
-                        cloverReportPublish(
-                                   coverage_stashes: ['centos7-covc-unit-cov'],
-                                   coverage_healthy: [methodCoverage: 0,
-                                                      conditionalCoverage: 0,
-                                                      statementCoverage: 0],
-                                   ignore_failure: true)
+                        cloverReportPublish coverage_stashes: ['centos7-covc-unit-cov'],
+                                            coverage_healthy: [methodCoverage: 0,
+                                                               conditionalCoverage: 0,
+                                                               statementCoverage: 0],
+                                            ignore_failure: true,
+                                            cache: commit_pragma_cache
                     }
                 } // stage('Bullseye Report')
             } // parallel
