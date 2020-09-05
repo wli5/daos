@@ -589,49 +589,6 @@ pipeline {
                         }
                     }
                 }
-                stage('Build on Leap 15 with Clang') {
-                    when {
-                        beforeAgent true
-                        allOf {
-                            branch target_branch
-                            expression { ! quickBuild(commit_pragma_cache) }
-                        }
-                    }
-                    agent {
-                        dockerfile {
-                            filename 'Dockerfile.leap.15'
-                            dir 'utils/docker'
-                            label 'docker_runner'
-                            additionalBuildArgs dockerBuildArgs() +
-                                                " -t ${sanitized_JOB_NAME}-leap15"
-                        }
-                    }
-                    steps {
-                        sconsBuild parallelBuild: parallelBuild(commit_pragma_cache),
-                                   cache: commit_pragma_cache
-                    }
-                    post {
-                        always {
-                            recordIssues enabledForFailure: true,
-                                         aggregatingResults: true,
-                                         id: "analysis-leap15-clang",
-                                         tools: [ clang(pattern: 'leap15-clang-build.log'),
-                                                  cppCheck(pattern: 'leap15-clang-build.log') ],
-                                         filters: [ excludeFile('.*\\/_build\\.external\\/.*'),
-                                                    excludeFile('_build\\.external\\/.*') ]
-                        }
-                        success {
-                            sh "rm -rf _build.external"
-                        }
-                        unsuccessful {
-                            sh """if [ -f config.log ]; then
-                                      mv config.log config.log-leap15-clang
-                                  fi"""
-                            archiveArtifacts artifacts: 'config.log-leap15-clang',
-                                             allowEmptyArchive: true
-                        }
-                    }
-                }
                 stage('Build on Leap 15 with Intel-C and TARGET_PREFIX') {
                     when {
                         beforeAgent true
