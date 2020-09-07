@@ -1010,6 +1010,10 @@ tse_task_reinit(tse_task_t *task)
 	dtp->dtp_running = 0;
 	dtp->dtp_completing = 0;
 	dtp->dtp_completed = 0;
+
+	/** reset stack pointer as zero */
+	dtp->dtp_stack_top = 0;
+
 	/** Move back to init list */
 	d_list_move_tail(&dtp->dtp_list, &dsp->dsp_init_list);
 
