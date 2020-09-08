@@ -27,6 +27,7 @@ import (
 	"context"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/golang/protobuf/proto"
 	"github.com/google/uuid"
@@ -41,7 +42,9 @@ import (
 )
 
 const (
-	defaultSvcReps = 1
+	defaultSvcReps     = 1
+	PoolDestroyTimeout = 10 * time.Minute
+	PoolCreateTimeout  = 10 * time.Minute
 )
 
 type (
@@ -168,6 +171,8 @@ func PoolCreate(ctx context.Context, rpcClient UnaryInvoker, req *PoolCreateReq)
 	req.setRPC(func(ctx context.Context, conn *grpc.ClientConn) (proto.Message, error) {
 		return mgmtpb.NewMgmtSvcClient(conn).PoolCreate(ctx, pbReq)
 	})
+	// TODO: Make timeout dynamic based on pool size?
+	req.SetTimeout(PoolCreateTimeout)
 
 	rpcClient.Debugf("Create DAOS pool request: %+v\n", req)
 	ur, err := rpcClient.InvokeUnaryRPC(ctx, req)
@@ -211,6 +216,7 @@ func PoolDestroy(ctx context.Context, rpcClient UnaryInvoker, req *PoolDestroyRe
 			Force: req.Force,
 		})
 	})
+	req.SetTimeout(PoolDestroyTimeout)
 
 	rpcClient.Debugf("Destroy DAOS pool request: %v\n", req)
 	ur, err := rpcClient.InvokeUnaryRPC(ctx, req)

@@ -41,15 +41,17 @@ type (
 		isMSRequest() bool
 	}
 
-	// timeoutGetter defines an interface to be implemented by
+	// timeoutSetter defines an interface to be implemented by
 	// requests that can set a timeout for the request invocation.
-	timeoutGetter interface {
+	timeoutSetter interface {
+		SetTimeout(time.Duration)
 		getTimeout() time.Duration
 	}
 
 	// UnaryRequest defines an interface to be implemented by
 	// unary request types (1 response to 1 request).
 	UnaryRequest interface {
+		timeoutSetter
 		targetChooser
 		unaryRPCGetter
 	}
@@ -59,6 +61,17 @@ type (
 // common to all request types.
 type request struct {
 	HostList []string
+	Timeout  time.Duration
+}
+
+// SetTimeout implements the timeoutSetter interface.
+func (r *request) SetTimeout(to time.Duration) {
+	r.Timeout = to
+}
+
+// getTimeout implements the timeoutSetter interface.
+func (r *request) getTimeout() time.Duration {
+	return r.Timeout
 }
 
 // getHostList returns the hostlist set for the request, which
@@ -94,16 +107,4 @@ type msRequest struct{}
 // and will always return true for a msRequest.
 func (r *msRequest) isMSRequest() bool {
 	return true
-}
-
-// timeoutRequest is an embeddable struct to implement the
-// timeoutGetter interface. Embedding requests can use it
-// to set an optional per-request timeout.
-type timeoutRequest struct {
-	RequestTimeout time.Duration
-}
-
-// getTimeout implements the timeoutGetter interface.
-func (r *timeoutRequest) getTimeout() time.Duration {
-	return r.RequestTimeout
 }

@@ -58,6 +58,10 @@ func (tr *testRequest) getHostList() []string {
 	return tr.HostList
 }
 
+func (tr *testRequest) SetTimeout(to time.Duration) {
+	tr.Timeout = to
+}
+
 func (tr *testRequest) getTimeout() time.Duration {
 	return tr.Timeout
 }

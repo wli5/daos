@@ -46,6 +46,21 @@ type sysRequest struct {
 	Hosts hostlist.HostSet
 }
 
+func (sr *sysRequest) SetRanks(rs *system.RankSet) {
+	rs.Lock()
+	defer rs.Unlock()
+
+	hsCopy := hostlist.CopySet(&rs.HostSet)
+	sr.Ranks = system.RankSet{
+		HostSet: *hsCopy,
+	}
+}
+
+func (sr *sysRequest) SetHosts(hs *hostlist.HostSet) {
+	hsCopy := hostlist.CopySet(hs)
+	sr.Hosts = *hsCopy
+}
+
 type sysResponse struct {
 	AbsentRanks system.RankSet
 	AbsentHosts hostlist.HostSet

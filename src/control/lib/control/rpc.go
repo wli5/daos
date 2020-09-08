@@ -188,10 +188,8 @@ func (c *Client) InvokeUnaryRPCAsync(parent context.Context, req UnaryRequest) (
 	go func() {
 		// Set a timeout for the entire request across all hosts.
 		reqTimeout := defaultRequestTimeout
-		if tg, ok := req.(timeoutGetter); ok {
-			if tg.getTimeout() > 0 {
-				reqTimeout = tg.getTimeout()
-			}
+		if ts, ok := req.(timeoutSetter); ok && ts.getTimeout() > 0 {
+			reqTimeout = ts.getTimeout()
 		}
 		ctx, cancel := context.WithTimeout(parent, reqTimeout)
 		defer cancel()

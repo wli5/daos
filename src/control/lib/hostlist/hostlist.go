@@ -1,5 +1,5 @@
 //
-// (C) Copyright 2019 Intel Corporation.
+// (C) Copyright 2019-2020 Intel Corporation.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -248,6 +248,23 @@ func parseBracketedHostList(input, rangeSep, rangeOp string, nameOptional bool) 
 	}
 
 	return hl, nil
+}
+
+// Copy safely performs a deep copy of the supplied *HostList.
+func Copy(in *HostList) *HostList {
+	in.Lock()
+	defer in.Unlock()
+
+	out := &HostList{
+		ranges:    make([]*hostRange, len(in.ranges)),
+		hostCount: in.hostCount,
+	}
+	for i, r := range in.ranges {
+		out.ranges[i] = &hostRange{}
+		*out.ranges[i] = *r
+	}
+
+	return out
 }
 
 // Create creates a new HostList from the supplied string representation.

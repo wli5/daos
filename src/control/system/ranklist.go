@@ -60,7 +60,10 @@ func fixBrackets(stringRanks string, remove bool) string {
 // CreateRankSet creates a new HostList with ranks rather than hostnames from the
 // supplied string representation.
 func CreateRankSet(stringRanks string) (*RankSet, error) {
-	rs := RankSet{}
+	emptyHs, _ := hostlist.CreateSet("")
+	rs := &RankSet{
+		HostSet: *emptyHs,
+	}
 
 	if len(stringRanks) > 0 {
 		stringRanks = fixBrackets(stringRanks, false)
@@ -70,11 +73,10 @@ func CreateRankSet(stringRanks string) (*RankSet, error) {
 		if err != nil {
 			return nil, err
 		}
-		// copying locks ok because original hs is discarded
 		rs.HostSet = *hs
 	}
 
-	return &rs, nil
+	return rs, nil
 }
 
 // Add adds rank to an existing RankSet.

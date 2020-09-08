@@ -42,6 +42,16 @@ func (hs *HostSet) MarshalJSON() ([]byte, error) {
 	return []byte(`"` + hs.RangedString() + `"`), nil
 }
 
+// CopySet safely performs a deep copy of the supplied *HostSet.
+func CopySet(in *HostSet) *HostSet {
+	in.Lock()
+	defer in.Unlock()
+
+	return &HostSet{
+		list: Copy(in.list),
+	}
+}
+
 // CreateSet creates a new HostSet from the supplied string representation.
 func CreateSet(stringHosts string) (*HostSet, error) {
 	hl, err := Create(stringHosts)
