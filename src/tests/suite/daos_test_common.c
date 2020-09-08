@@ -1028,12 +1028,13 @@ get_daos_prop_with_user_acl_perms(uint64_t perms)
 }
 
 int
-get_server_config(char *host)
+get_server_config(char *host, char *server_config_file)
 {
 	char	command[256];
-	char	buf[256];
+	size_t	len = 0;
+	size_t	read;
+	char	*line = NULL;
 	char	*pch;
-	char	*server_config_file;
 
 	snprintf(command, sizeof(command),
 		"ssh %s\" ps ux | grep daos_server | grep start", host);
@@ -1041,16 +1042,12 @@ get_server_config(char *host)
 	if (fp == NULL)
 		return -DER_INVAL;
 
-	while (fgets(buf, sizeof(buf), fp) != 0) {
-		if(strstr(buf, "--config") != NULL || strstr(buf, "-o") != NULL)
+	while ((read = getline(&line, &len, fp)) != -1) {
+		if(strstr(line, "--config") != NULL || strstr(line, "-o") != NULL)
 			break;
 	}
 
-	if (buf == NULL)
-		return -DER_INVAL;
-
-	server_config_file = malloc(sizeof(buf));
-	pch = strtok(buf," ");
+	pch = strtok(line," ");
 	while (pch != NULL) {
 		if (strstr(pch, "yaml") != NULL){
 			strcpy(server_config_file, pch);
@@ -1059,9 +1056,68 @@ get_server_config(char *host)
 		pch = strtok (NULL, " ");
 	}
 
-	print_message("FINAL %s\n", server_config_file);
-
 	pclose(fp);
+
+	D_FREE(line);
+	return(0);
+}
+
+int verify_server_log_mask(char *host, char *server_config_file,
+	char *log_mask){
+	char	command[256];
+	size_t	len = 0;
+	size_t	read;
+	char	*line = NULL;
+
+	snprintf(command, sizeof(command),
+	"ssh %s\" cat %s", host, server_config_file);
+
+	FILE *fp = popen(command, "r");
+	if (fp == NULL)
+		return -DER_INVAL;
+
+	while ((read = getline(&line, &len, fp)) != -1) {
+		if(strstr(line, " log_mask") != NULL){
+			if(strstr(line, log_mask) == NULL) {
+				print_message("Expexted log_mask = %s, Found %s\n ", log_mask,
+					line);
+				return -DER_INVAL;
+			}
+		}
+	}
+
+	return(0);
+}
+
+int get_server_log_file(char *host){
+	char	*server_config_file;
+	int		rc;
+	char	command[256];
+	size_t	len = 0;
+	size_t	read;
+	char	*line = NULL;
+
+	D_ALLOC(server_config_file, 256);
+	rc = get_server_config(host, server_config_file);
+	assert_int_equal(rc, 0);
+	print_message("Server Config = %s\n", server_config_file);
+
+	rc = verify_server_log_mask(host, server_config_file, "ERROR");
+	assert_int_equal(rc, 0);
+
+	snprintf(command, sizeof(command),
+		"ssh %s\" cat %s", host, server_config_file);
+
+	FILE *fp = popen(command, "r");
+	if (fp == NULL)
+		return -DER_INVAL;
+
+	while ((read = getline(&line, &len, fp)) != -1) {
+		if(strstr(line, " log_file") != NULL)
+			print_message("log_file = %s\n ", line);
+	}
+
 	D_FREE(server_config_file);
+	D_FREE(line);
 	return(0);
 }
