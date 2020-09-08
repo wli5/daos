@@ -12,6 +12,7 @@ pool:
 server_config:
   servers_per_host: 2
   name: daos_server
+  log_mask: DEBUG,RPC=ERR,MEM=ERR
   servers:
     0:
       pinned_numa_node: 0
