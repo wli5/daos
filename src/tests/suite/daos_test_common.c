@@ -1107,7 +1107,7 @@ int get_server_log_file(char *host, char *server_config_file,
 
 	while ((read = getline(&line, &len, fp)) != -1) {
 		if(strstr(line, " log_file") != NULL) {
-			strcpy(log_file, strrchr(line, ':')+1);
+			strcat(log_file, strrchr(line, ':')+1);
 		}
 	}
 

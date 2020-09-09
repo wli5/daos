@@ -134,22 +134,14 @@ nvme_recov_2(void **state)
 	struct ioreq	req;
 	int			ndisks;
 	int			rc, i;
-	char	*server_config_file;
-	char	*log_file;
+	char		*server_config_file;
+	char		*log_file;
+	char		*pch;
 
 	if (!is_nvme_enabled(arg)) {
 		print_message("NVMe isn't enabled.\n");
 		skip();
 	}
-
-	oid = dts_oid_gen(dts_obj_class, 0, arg->myrank);
-	ioreq_init(&req, arg->coh, oid, DAOS_IOD_ARRAY, arg);
-	memset(data_buf, 'a', 100);
-	
-	/** Insert record **/
-	print_message("Insert single record with 100 extents\n");
-	insert_single_with_rxnr("dkey", "akey", 0, data_buf,
-		1, 100, DAOS_TX_NONE, &req);
 
 	/**
 	*Get the Number of devices
@@ -171,8 +163,8 @@ nvme_recov_2(void **state)
 	/**
 	Verify log_mask in server.yaml file, It should be 'ERROR'
 	*/
-	D_ALLOC(server_config_file, 256);
-	D_ALLOC(log_file, 256);
+	D_ALLOC(server_config_file, 512);
+	D_ALLOC(log_file, 1024);
 
 	for (i = 0; i < ndisks; i++) {
 		if (devices[i].rank == 1) {
@@ -183,12 +175,31 @@ nvme_recov_2(void **state)
 
 			get_server_log_file(strtok(devices[1].host, ":"),
 				server_config_file, log_file);
-			print_message ("FINAL log file = %s", log_file);
+			print_message ("log file = %s", log_file);
 			rc = verify_server_log_mask(strtok(devices[1].host, ":"),
 				server_config_file, "ERROR");
-			assert_int_equal(rc, 0);
+			if (rc) {
+				print_message("Log Mask != ERROR in server file.\n");
+				skip();
+			}
 		}
 	}
+
+	pch = strtok(log_file,"\n");
+	while (pch != NULL) {
+		print_message(" FILE = %s\n", pch);
+		pch = strtok (NULL, " ");
+	}
+
+	/** Prepare records **/
+	oid = dts_oid_gen(dts_obj_class, 0, arg->myrank);
+	ioreq_init(&req, arg->coh, oid, DAOS_IOD_ARRAY, arg);
+	memset(data_buf, 'a', 100);
+	
+	/** Insert record **/
+	print_message("Insert single record with 100 extents\n");
+	insert_single_with_rxnr("dkey", "akey", 0, data_buf,
+		1, 100, DAOS_TX_NONE, &req);
 
 	/**
 	*Set single device for rank1 to faulty.
@@ -224,7 +235,7 @@ nvme_recov_2(void **state)
 	for (i = 0; i < 100; i++)
 		assert_memory_equal(&fetch_buf[i], "a", 1);
 
-	/* Teardown */
+	/* Tear down */
 	D_FREE(server_config_file);
 	D_FREE(log_file);
 	D_FREE(devices);
