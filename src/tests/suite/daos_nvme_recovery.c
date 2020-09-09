@@ -134,6 +134,8 @@ nvme_recov_2(void **state)
 	struct ioreq	req;
 	int			ndisks;
 	int			rc, i;
+	char	*server_config_file;
+	char	*log_file;
 
 	if (!is_nvme_enabled(arg)) {
 		print_message("NVMe isn't enabled.\n");
@@ -161,15 +163,32 @@ nvme_recov_2(void **state)
 	D_ALLOC_ARRAY(devices, ndisks);
 	rc = dmg_storage_device_list(dmg_config_file, NULL, devices);
 	assert_int_equal(rc, 0);
-	for (i = 0; i < ndisks; i++) {
+	for (i = 0; i < ndisks; i++)
 		print_message("Rank=%d UUID=%s state=%s host=%s\n",
 			devices[i].rank, DP_UUID(devices[i].device_id),
 			devices[i].state, devices[i].host);
-		if (devices[i].rank == 1)
-			get_server_log_file(strtok(devices[1].host, ":"));
-	}
 
-	
+	/**
+	Verify log_mask in server.yaml file, It should be 'ERROR'
+	*/
+	D_ALLOC(server_config_file, 256);
+	D_ALLOC(log_file, 256);
+
+	for (i = 0; i < ndisks; i++) {
+		if (devices[i].rank == 1) {
+			rc = get_server_config(strtok(devices[1].host, ":"),
+				server_config_file);
+			assert_int_equal(rc, 0);
+			print_message ("server_config_file = %s\n", server_config_file);
+
+			get_server_log_file(strtok(devices[1].host, ":"),
+				server_config_file, log_file);
+			print_message ("FINAL log file = %s", log_file);
+			rc = verify_server_log_mask(strtok(devices[1].host, ":"),
+				server_config_file, "ERROR");
+			assert_int_equal(rc, 0);
+		}
+	}
 
 	/**
 	*Set single device for rank1 to faulty.
@@ -206,6 +225,8 @@ nvme_recov_2(void **state)
 		assert_memory_equal(&fetch_buf[i], "a", 1);
 
 	/* Teardown */
+	D_FREE(server_config_file);
+	D_FREE(log_file);
 	D_FREE(devices);
 }
 

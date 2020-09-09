@@ -387,7 +387,10 @@ void io_simple_internal(void **state, daos_obj_id_t oid, unsigned int size,
 	const char akey[]);
 int pool_storage_info(void **state, daos_pool_info_t *pinfo);
 int get_server_config(char *host, char *server_config_file);
-int get_server_log_file(char *host);
+int get_server_log_file(char *host, char *server_config_file,
+	char *log_file);
+int verify_server_log_mask(char *host, char *server_config_file,
+	char *log_mask);
 
 static inline void
 daos_test_print(int rank, char *message)

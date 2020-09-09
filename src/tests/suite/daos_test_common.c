@@ -1086,24 +1086,17 @@ int verify_server_log_mask(char *host, char *server_config_file,
 		}
 	}
 
+	pclose(fp);
+	D_FREE(line);
 	return(0);
 }
 
-int get_server_log_file(char *host){
-	char	*server_config_file;
-	int		rc;
+int get_server_log_file(char *host, char *server_config_file,
+	char *log_file) {
 	char	command[256];
 	size_t	len = 0;
 	size_t	read;
 	char	*line = NULL;
-
-	D_ALLOC(server_config_file, 256);
-	rc = get_server_config(host, server_config_file);
-	assert_int_equal(rc, 0);
-	print_message("Server Config = %s\n", server_config_file);
-
-	rc = verify_server_log_mask(host, server_config_file, "ERROR");
-	assert_int_equal(rc, 0);
 
 	snprintf(command, sizeof(command),
 		"ssh %s\" cat %s", host, server_config_file);
@@ -1113,11 +1106,12 @@ int get_server_log_file(char *host){
 		return -DER_INVAL;
 
 	while ((read = getline(&line, &len, fp)) != -1) {
-		if(strstr(line, " log_file") != NULL)
-			print_message("log_file = %s\n ", line);
+		if(strstr(line, " log_file") != NULL) {
+			strcpy(log_file, strrchr(line, ':')+1);
+		}
 	}
 
-	D_FREE(server_config_file);
+	pclose(fp);
 	D_FREE(line);
 	return(0);
 }
