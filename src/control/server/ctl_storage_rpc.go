@@ -134,7 +134,9 @@ func (c *StorageControlService) StoragePrepare(ctx context.Context, req *ctlpb.S
 func (c *ControlService) updateBdevHealthSmd(ctx context.Context, ctrlrs storage.NvmeControllers) error {
 	c.log.Debugf("updateBdevHealthSmd(): before %v", ctrlrs)
 
-	var healthResps map[string]*mgmtpb.BioHealthResp
+	//	var bsResps map[string][]*mgmtpb.SmdDevResp_Device // blobstore model+serial key
+	//	var healthResps map[string]*mgmtpb.BioHealthResp // ctrlr model+serial key
+	var ctrlrMap map[string]*storage.NvmeController // ctrlr model+serial key
 
 	for _, srv := range c.harness.Instances() {
 		devsResp, lsdErr := srv.listSmdDevices(ctx, new(mgmtpb.SmdDevReq))
@@ -163,15 +165,35 @@ func (c *ControlService) updateBdevHealthSmd(ctx context.Context, ctrlrs storage
 			}
 			modelSerial := healthResp.BdsModel + healthResp.BdsSerial
 
-			msg := fmt.Sprintf("health stats received for %s (blobstore %s)",
+			msg := fmt.Sprintf("smd info received for ctrlr model/serial %s (uuid %s)",
 				modelSerial, healthResp.DevUuid)
 
-			if _, exists := healthResps[modelSerial]; exists {
-				return errors.Errorf("duplicate %s", msg)
+			if _, exists := ctrlrMap[modelSerial]; !exists {
+				c.log.Debug(msg + " didn't match any known controllers")
+				continue
 			}
-			healthResps[modelSerial] = healthResp
 
 			c.log.Debugf(msg)
+
+			// multiple updates for the same key expected when
+			// more than one controller namespaces (and resident
+			// blobstores) exist, stats will be the same for each
+			if err := convert.Types(healthResp, ctrlrMap[modelSerial].HealthStats); err != nil {
+				return errors.Wrapf(err, "converting health for controller %s %s",
+					modelSerial, ctrlrMap[modelSerial].PciAddr)
+			}
+
+			smdDev := new(storage.SmdDevice)
+			if err := convert.Types(bs, smdDev); err != nil {
+				return errors.Wrapf(err, "converting smd details for controller %s %s",
+					modelSerial, ctrlrMap[modelSerial].PciAddr)
+			}
+
+			ctrlrMap[modelSerial].SmdDevices = append(ctrlrMap[modelSerial].SmdDevices,
+				smdDev)
+
+			c.log.Debugf("controller health and smd details updated for %s %s from smd device %s",
+				modelSerial, ctrlrMap[modelSerial].PciAddr, bs.GetUuid())
 		}
 	}
 
@@ -189,10 +211,12 @@ func (c *ControlService) updateBdevHealthSmd(ctx context.Context, ctrlrs storage
 		}
 		modelSerial := ctrlr.Model + ctrlr.Serial
 
-		if err := convert.Types(healthResps[modelSerial], ctrlr.HealthStats); err != nil {
-			return errors.Wrapf(err, "updating controller %s (%s) health from smd %s",
-				ctrlr.PciAddr, modelSerial, healthResps[modelSerial].DevUuid)
+		if _, exists := ctrlrMap[modelSerial]; exists {
+			return errors.Errorf("duplicate entries for controller %s, key %s",
+				ctrlr.PciAddr, modelSerial)
 		}
+
+		ctrlrMap[modelSerial] = ctrlr
 	}
 
 	return nil
