@@ -687,22 +687,22 @@ dmg_storage_set_nvme_fault(const char *dmg_config_file,
 	struct json_object	*dmg_out = NULL;
 	int			rc = 0;
 
-	args = cmd_push_arg(args, &argcount, "--host-list=%s ", host);
-	if (args == NULL)
-		D_GOTO(out, rc = -DER_NOMEM);
-
 	uuid_unparse_lower(uuid, uuid_str);
-	args = cmd_push_arg(args, &argcount, "--uuid=%s ", uuid_str);
+	args = cmd_push_arg(args, &argcount, " --uuid=%s ", uuid_str);
 	if (args == NULL)
 		D_GOTO(out, rc = -DER_NOMEM);
 
 	if (force != 0) {
-		args = cmd_push_arg(args, &argcount, "--force");
+		args = cmd_push_arg(args, &argcount, " --force ");
 		if (args == NULL)
 			D_GOTO(out, rc = -DER_NOMEM);
 	}
 
-	rc = daos_dmg_json_pipe("storage set nvme-faulty", dmg_config_file,
+	args = cmd_push_arg(args, &argcount, " --host-list=%s\" ", host);
+	if (args == NULL)
+		D_GOTO(out, rc = -DER_NOMEM);
+
+	rc = daos_dmg_json_pipe("storage set nvme-faulty ", dmg_config_file,
 				args, argcount, &dmg_out);
 	if (rc != 0) {
 		D_ERROR("dmg failed");

@@ -1115,3 +1115,33 @@ int get_server_log_file(char *host, char *server_config_file,
 	D_FREE(line);
 	return(0);
 }
+
+int verify_state_in_log(char *host, char *log_file, char *state) {
+	char	command[1024];
+	size_t	len = 0;
+	size_t	read;
+	char	*line = NULL;
+	char	*pch;
+
+	pch = strtok(log_file,"\n");
+	while (pch != NULL) {
+		snprintf(command, sizeof(command),"ssh %s\" cat %s | grep %s",
+			host, pch, state);
+		FILE *fp = popen(command, "r");
+		if (fp == NULL)
+			return -DER_INVAL;
+		while ((read = getline(&line, &len, fp)) != -1) {
+			if(strstr(line, state) != NULL) {
+				print_message("Found state %s in Log file %s", state,
+					pch);
+				break;
+			}
+		}
+		pch = strtok (NULL, " ");
+		pclose(fp);
+		D_FREE(line);
+	}
+
+	return(0);
+}
+

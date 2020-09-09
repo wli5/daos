@@ -136,7 +136,6 @@ nvme_recov_2(void **state)
 	int			rc, i;
 	char		*server_config_file;
 	char		*log_file;
-	char		*pch;
 
 	if (!is_nvme_enabled(arg)) {
 		print_message("NVMe isn't enabled.\n");
@@ -161,11 +160,10 @@ nvme_recov_2(void **state)
 			devices[i].state, devices[i].host);
 
 	/**
-	Verify log_mask in server.yaml file, It should be 'ERROR'
+	Verify log_mask in server.yaml file, It  should be 'DEBUG'
 	*/
 	D_ALLOC(server_config_file, 512);
 	D_ALLOC(log_file, 1024);
-
 	for (i = 0; i < ndisks; i++) {
 		if (devices[i].rank == 1) {
 			rc = get_server_config(strtok(devices[1].host, ":"),
@@ -175,20 +173,13 @@ nvme_recov_2(void **state)
 
 			get_server_log_file(strtok(devices[1].host, ":"),
 				server_config_file, log_file);
-			print_message ("log file = %s", log_file);
 			rc = verify_server_log_mask(strtok(devices[1].host, ":"),
-				server_config_file, "ERROR");
+				server_config_file, "DEBUG");
 			if (rc) {
-				print_message("Log Mask != ERROR in server file.\n");
+				print_message("Log Mask != DEBUG in server file.\n");
 				skip();
 			}
 		}
-	}
-
-	pch = strtok(log_file,"\n");
-	while (pch != NULL) {
-		print_message(" FILE = %s\n", pch);
-		pch = strtok (NULL, " ");
 	}
 
 	/** Prepare records **/
@@ -203,30 +194,33 @@ nvme_recov_2(void **state)
 
 	/**
 	*Set single device for rank1 to faulty.
-
+	*/
 	for (i = 0; i < ndisks; i++) {
 		if (devices[i].rank == 1) {
-			print_message("NVMe with UUID=%s on host=%s set to Faulty\n",
-				DP_UUID(devices[i].device_id), devices[i].host);
+			print_message("NVMe with UUID=%s on host=%s\" set to Faulty\n",
+				DP_UUID(devices[i].device_id), strtok(devices[i].host, ":"));
 			rc = dmg_storage_set_nvme_fault(dmg_config_file,
-				devices[i].host, devices[i].device_id, 1);
+				strtok(devices[i].host, ":"), devices[i].device_id, 1);
 			assert_int_equal(rc, 0);
 			break;
 		}
 	}
-	sleep(30);*/
+	sleep(30);
 
 	/**
 	*Verify the Rank1 device as FAULTY
-	
+	*/
 	rc = dmg_storage_device_list(dmg_config_file, NULL, devices);
 	assert_int_equal(rc, 0);
 	for (i = 0; i < ndisks; i++) {
 		if (devices[i].rank == 1) {
 			assert_string_equal(devices[i].state, "\"FAULTY\"");
+			/*rc = verify_state_in_log(devices[i].host,
+				log_file, "FAULTY -> TEARDOWN");
+			assert_int_equal(rc, 0);*/
 			break;
 		}
-	}*/
+	}
 
 	/** Lookup all the records **/
 	print_message("Lookup and Verify all the records:\n");
